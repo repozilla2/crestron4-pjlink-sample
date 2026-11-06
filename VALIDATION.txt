@@ -1,0 +1,114 @@
+Verification recorded on 2026-11-06T22:55:48.963303+00:00
+Environment Linux x86_64, .NET SDK 8.0.427, Crestron SDK 2.22.40.
+macOS execution and physical processor/display exercise remain pending.
+
+Build entry point
+This environment invoked the installed SDK MSBuild.dll directly.
+The official Crestron NuGet build targets were unchanged.
+DOTNET_ROOT below represents the directory containing the installed SDK.
+Build output paths have been shortened relative to the repository root.
+
+DOTNET_HOST_PATH="$DOTNET_ROOT/dotnet" MSBuildEnableWorkloadResolver=false \
+  "$DOTNET_ROOT/dotnet" "$DOTNET_ROOT/sdk/8.0.427/MSBuild.dll" \
+  CrestronSample.sln -restore -t:Rebuild -p:Configuration=Release \
+  -p:UseSharedCompilation=false -p:BuildInParallel=false \
+  -maxcpucount:1 -nodeReuse:false -nologo -verbosity:minimal
+
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  DisplayControl.Core -> src/DisplayControl.Core/bin/Release/netstandard2.0/DisplayControl.Core.dll
+  DisplayControl.Tests -> tests/DisplayControl.Tests/bin/Release/net8.0/DisplayControl.Tests.dll
+  CrestronSample -> src/CrestronSample/bin/Release/net6.0/CrestronSample.dll
+  CrestronAdapter.Tests -> tests/CrestronAdapter.Tests/bin/Release/net8.0/CrestronAdapter.Tests.dll
+Build exit code 0
+
+Core test command
+"$DOTNET_ROOT/dotnet" tests/DisplayControl.Tests/bin/Release/net8.0/DisplayControl.Tests.dll
+PASS Fragmented greeting waits for CR
+PASS Official MD5 fixture and first-command prefix
+PASS Power queries decode all four states
+PASS Set acknowledgments preserve confirmed feedback
+PASS Fragmented responses and CRLF are framed
+PASS Trailing data cannot satisfy a callback-created command
+PASS Idle partial replies cannot complete a future query
+PASS Idle partial acknowledgments cannot complete a future write
+PASS One command can be outstanding
+PASS Device errors complete without invented feedback
+PASS Missing greeting and response time out
+PASS Late replies cannot complete timed-out commands
+PASS Disconnect clears state and partial data
+PASS Authentication failure invalidates session
+PASS Invalid greetings are rejected
+PASS Malformed or unexpected responses are rejected
+PASS Oversized and non-ASCII frames are rejected
+PASS Configuration rejects invalid passwords and timeout
+18/18 test groups passed.
+Test exit code 0
+
+Adapter test command
+"$DOTNET_ROOT/dotnet" tests/CrestronAdapter.Tests/bin/Release/net8.0/CrestronAdapter.Tests.dll
+PASS Pause closes resources and suppresses commands and callbacks
+PASS Resume requires an explicit new connection
+PASS Stop while paused releases registrations and stays stopped
+PASS Late callbacks cannot replace the current connection
+PASS Inline callbacks defer disposal until the outer lock exits
+PASS Failed registration preserves another console command
+PASS Send failure and invalid ASCII close the connection
+PASS Runtime password file supplies authentication without credential logs
+8/8 adapter test groups passed using SDK doubles.
+Test exit code 0
+Adapter tests compile the production source against explicit SDK doubles.
+Physical SDK runtime and firmware behavior require the documented lab exercise.
+
+Adversarial regression check
+The current test sources were also executed against the original pre-review production source.
+Both baseline test projects compiled successfully.
+Original core passed 16/18 groups and returned exit code 1.
+The new idle partial query and write-acknowledgment groups failed as expected.
+Original adapter passed 4/8 groups and returned exit code 1.
+Pause, resume, inline cleanup, and console registration ownership groups failed as expected.
+
+CPZ archive inspection
+CRC check passed.
+40 archive entries.
+Program and core assemblies present.
+Archive path validation passed.
+Private runtime password file absent.
+
+ProgramInfo.config
+<ProgramInfo>
+  <RequiredInfo>
+    <FriendlyName>CrestronSample</FriendlyName>
+    <SystemName>CrestronSample</SystemName>
+    <EntryPoint>CrestronSample</EntryPoint>
+    <DesignToolId>6</DesignToolId>
+    <ProgramToolId>6</ProgramToolId>
+    <TargetFramework>v6.0</TargetFramework>
+  </RequiredInfo>
+  <OptionalInfo>
+    <CompiledOn>2026-11-06T14:54:19.897-08:00</CompiledOn>
+    <CompilerRev>1.0.0.0</CompilerRev>
+  </OptionalInfo>
+  <Plugin>
+    <Include4.dat>2.22.40</Include4.dat>
+  </Plugin>
+</ProgramInfo>
+
+CPZ SHA-256
+e20d3d013b987da227170117e45fa487f9981390e55b02a334309a18830f588f
+CPZ size 6485442 bytes.
+
+Source SHA-256 values
+1b1d9059b9dd372c5e0420ad2773acd691c35098f38b67a6b6b445bdacd6a983  .gitignore
+b80b3f7e9b6bffe42ec9456c6c8a9c233d6ab9aaa371202ed0e9736a84eaf925  CrestronSample.sln
+00f978b35226b5055caa83a3cbf4ae3a468adeff271784e07acd38765b2e490c  README.md
+7ac2c386a415fa6dd820115e8085c8871902a5f99b22e9b6f0be802bf4c3d8a0  src/CrestronSample/ControlSystem.cs
+69bbf4644c1b09fa09e3091f86cac61ca06de50f94edd342d42fce4bf1ce8b48  src/CrestronSample/CrestronSample.csproj
+af2a81636a6ce0b4167eda7bc2c6308ea3e3428944a653b1b10762912d394017  src/CrestronSample/SampleConfiguration.cs
+3ff63972c7557c0e7d19abd6fb08b7b8acf6bb8179b0e5e126a5f7912ee3fa8c  src/DisplayControl.Core/DisplayControl.Core.csproj
+37e33e97180e7d3b9378d464797597c3d61ee285dbd2e78d39a8f640c5f97d05  src/DisplayControl.Core/PjLinkSession.cs
+a60411d99c5d0b4a00658119281c21f0868aa6390b22ab111fcc67d9c94dbd28  tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj
+e71b6cc9f0e6abe90deb093a0541db75d12766ce113354d02449e636c04a6f7d  tests/CrestronAdapter.Tests/Program.cs
+ce75e4aa052d3b8015a59d6a09456e9af40492b4fd3e487bd181d6470fe53686  tests/CrestronAdapter.Tests/SdkDoubles.cs
+63be544b478a5d9931679c8f748c1a19f79f4e6e7c174dfeefd48bc8549b7611  tests/DisplayControl.Tests/DisplayControl.Tests.csproj
+c596e5a993ca5a0b3ca5bfd7302b0bf823b552b03fc64f6176627366ca736bcf  tests/DisplayControl.Tests/Program.cs

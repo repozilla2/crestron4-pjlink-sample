@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>KeithGariepy.CrestronSample</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Crestron.SimplSharp.SDK.Program" Version="2.22.40" />
+    <ProjectReference Include="../DisplayControl.Core/DisplayControl.Core.csproj" />
+  </ItemGroup>
+</Project>

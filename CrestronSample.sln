@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisplayControl.Core", "src/DisplayControl.Core/DisplayControl.Core.csproj", "{7AD918CF-DA6B-47E5-8267-13BAC5C90346}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisplayControl.Tests", "tests/DisplayControl.Tests/DisplayControl.Tests.csproj", "{E9B53205-6966-4D59-8E12-4A306F7AE3C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrestronSample", "src/CrestronSample/CrestronSample.csproj", "{8DCEB0EC-B7EB-4293-94B6-63F0F1D2B153}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrestronAdapter.Tests", "tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj", "{343CFD2A-77CB-44AD-9FF8-39A6EF77ACB1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7AD918CF-DA6B-47E5-8267-13BAC5C90346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD918CF-DA6B-47E5-8267-13BAC5C90346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD918CF-DA6B-47E5-8267-13BAC5C90346}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD918CF-DA6B-47E5-8267-13BAC5C90346}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9B53205-6966-4D59-8E12-4A306F7AE3C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9B53205-6966-4D59-8E12-4A306F7AE3C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9B53205-6966-4D59-8E12-4A306F7AE3C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9B53205-6966-4D59-8E12-4A306F7AE3C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DCEB0EC-B7EB-4293-94B6-63F0F1D2B153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DCEB0EC-B7EB-4293-94B6-63F0F1D2B153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DCEB0EC-B7EB-4293-94B6-63F0F1D2B153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DCEB0EC-B7EB-4293-94B6-63F0F1D2B153}.Release|Any CPU.Build.0 = Release|Any CPU
+		{343CFD2A-77CB-44AD-9FF8-39A6EF77ACB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{343CFD2A-77CB-44AD-9FF8-39A6EF77ACB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{343CFD2A-77CB-44AD-9FF8-39A6EF77ACB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{343CFD2A-77CB-44AD-9FF8-39A6EF77ACB1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
