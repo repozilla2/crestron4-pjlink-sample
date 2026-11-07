@@ -19,6 +19,7 @@ var tests = new (string Name, Action Run)[]
     ("Failed registration preserves another console command", RegistrationOwnership),
     ("Send failure and invalid ASCII close the connection", TransportFailures),
     ("Timer-driven timeouts close the socket and permit reconnection", TimerTimeouts),
+    ("Production construction uses the running monotonic Stopwatch", ProductionClock),
     ("Runtime password file supplies authentication without credential logs", RuntimePassword)
 };
 
@@ -185,6 +186,21 @@ static void TimerTimeouts()
     CrestronConsole.Command!("query");
     Equal("%1POWR ?\r", fresh.Sent.Single());
     Equal(false, fresh.IsDisposed);
+}
+
+static void ProductionClock()
+{
+    // The public constructor is the one the processor invokes.
+    ControlSystem program = Start();
+    BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+    var stopwatch = (System.Diagnostics.Stopwatch)typeof(ControlSystem).GetField("clock", flags)!.GetValue(program)!;
+    var now = (Func<TimeSpan>)typeof(ControlSystem).GetField("now", flags)!.GetValue(program)!;
+    Equal(true, stopwatch.IsRunning);
+    TimeSpan first = now();
+    Thread.Sleep(20);
+    TimeSpan second = now();
+    Equal(true, second - first >= TimeSpan.FromMilliseconds(15));
+    Equal(true, second <= stopwatch.Elapsed);
 }
 
 static void TransportFailures()
