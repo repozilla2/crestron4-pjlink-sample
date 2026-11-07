@@ -79,16 +79,20 @@ For a lab walkthrough, query a display in standby, request power on, and query t
 
 | Check | Status |
 | --- | --- |
-| Clean build on macOS 27.2 arm64 with .NET SDK 10.0.403 | Passed with 0 warnings and 0 errors at commit `7cf31ae` |
+| Clean build on macOS 27.2 arm64 with .NET SDK 10.0.403 selected by `global.json` | Passed with 0 warnings and 0 errors at commit `c9fb31f` |
 | Core regression tests on .NET 10 | 18 of 18 test groups passed, exit code 0 |
-| Adapter regression tests using SDK doubles on .NET 10 | 9 of 9 test groups passed, exit code 0 |
-| Crestron SDK compilation and CPZ packaging on macOS | Passed using the official, unmodified SDK build targets; CPZ inspected |
+| Adapter regression tests using SDK doubles on .NET 10 | 10 of 10 test groups passed, exit code 0 |
+| Crestron SDK compilation and CPZ packaging on macOS | Passed using the official, unmodified SDK build targets; CPZ inspected and checksum recorded |
+| Earlier native .NET 10 run at commit `7cf31ae` | 18 of 18 and 9 of 9 passed; superseded, preserved in `VALIDATION.txt` |
+| Original `net8.0` tests on macOS with .NET SDK 10.0.403 | Passed 18/18 and 8/8 at commit `544b222` only with an explicit `DOTNET_ROLL_FORWARD=Major` override; superseded |
 | Original Linux build and tests with .NET SDK 8.0.427 | Passed at commit `544b222`; preserved in `VALIDATION.txt` |
-| Original `net8.0` tests on macOS with .NET SDK 10.0.403 | Passed 18/18 and 8/8 at commit `544b222` only with an explicit `DOTNET_ROLL_FORWARD=Major` override; superseded by the native .NET 10 rows above |
 | Execution on a physical Crestron processor and firmware | Pending |
-| Real display, network recovery, and lifecycle exercise | Pending |
+| Real display power control and authentication | Pending |
+| Network recovery: unavailable device, interrupted connection, idle close | Pending |
+| Lifecycle on hardware: pause/resume and program stop/restart | Pending |
+| Password file persists across a program reload | Pending |
 
-The core tests cover fragmentation, authentication, power states, acknowledgments, error responses, overlapping requests, timeout boundaries, late data, restart, invalid messages, and buffer limits. The adapter tests cover pause/resume, stop, stale callbacks, inline callbacks, console-command ownership, transport failures, timer-driven timeouts, and runtime password loading. Processor callback behavior and real device timing require the lab exercise above.
+The core tests cover fragmentation, authentication, power states, acknowledgments, error responses, overlapping requests, timeout boundaries, late data, restart, invalid messages, and buffer limits. The adapter tests cover pause/resume, stop, stale callbacks, inline callbacks, console-command ownership, transport failures, timer-driven timeouts, the production monotonic clock, and runtime password loading. Processor callback behavior and real device timing require the lab exercise above.
 
 ## Preparation
 
