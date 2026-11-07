@@ -33,7 +33,7 @@ The protocol target is the power-control subset of PJLink Class 1 version 1.04, 
 
 ## Build and exercise on macOS
 
-Install the .NET 8 SDK for the Mac's architecture. Visual Studio Code is optional. Package restore needs access to NuGet. [Microsoft macOS installation guide](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
+Install the .NET 10 SDK for the Mac's architecture. The desktop test executables target `net10.0` and need the .NET 10 runtime, which the SDK includes. Microsoft supports .NET 10 into November 2028; .NET 8 support ends on November 10, 2026. Visual Studio Code is optional. Package restore needs access to NuGet. [Microsoft macOS installation guide](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 Building the processor project requires appropriate authorization to use Crestron's SDK under its applicable software-development terms. The repository contains original source and package references. SDK assemblies are restored through NuGet during the build. [Crestron software-development terms](https://www.crestron.com/Legal/software-license-agreement/Software-Development-Tools-License-Agreement)
 
@@ -45,9 +45,9 @@ dotnet run --project tests/DisplayControl.Tests/DisplayControl.Tests.csproj -c R
 dotnet run --project tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj -c Release --no-build
 ```
 
-Each test executable returns exit code `0` when every group passes and exit code `1` when any group fails. Both use small dependency-free harnesses with explicit assertions. The core targets `netstandard2.0`, both test executables target `net8.0`, and the processor program targets `net6.0`.
+Each test executable returns exit code `0` when every group passes and exit code `1` when any group fails. Both use small dependency-free harnesses with explicit assertions. The core targets `netstandard2.0`, both test executables target `net10.0`, and the processor program targets `net6.0`. The processor target follows the Crestron SDK: package `2.22.40` ships only `net47` and `net6.0` assemblies.
 
-The adapter tests compile the production adapter source against explicit SDK doubles. They exercise its control-flow decisions, including adverse callback ordering. Processor runtime behavior and device integration remain part of the lab exercise below.
+The adapter tests compile the production adapter source against explicit SDK doubles. They exercise its control-flow decisions, including adverse callback ordering and timer-driven timeouts. An internal constructor lets the tests supply a manual clock; the processor uses the public constructor and a `Stopwatch`. Processor runtime behavior and device integration remain part of the lab exercise below.
 
 The processor project pins `Crestron.SimplSharp.SDK.Program` to `2.22.40`. Crestron's package produces `src/CrestronSample/bin/Release/net6.0/CrestronSample.cpz` as part of a successful build. [Crestron SDK package](https://www.nuget.org/packages/Crestron.SimplSharp.SDK.Program/2.22.40)
 
@@ -57,7 +57,7 @@ Select a programmable 4-Series processor whose firmware supports full .NET 6 pro
 
 1. Set `DisplayHost` in `SampleConfiguration.cs` to the lab display's address. The supplied `192.0.2.10` value is a documentation placeholder. PJLink uses port `4352`.
 2. Build the project with the configured lab endpoint and load the resulting CPZ through the established Crestron deployment procedure.
-3. For a password-protected display, place its password in a private `pjlink-password.txt` file in the processor's program directory, as returned by `Crestron.SimplSharp.CrestronIO.Directory.GetApplicationDirectory()`, then restart the program. Transfer it through an authorized secure connection. Keep this file outside source control and shared archives. A missing password file permits the unauthenticated PJLink mode.
+3. For a password-protected display, place its password in a private `pjlink-password.txt` file in the processor's program directory, as returned by `Crestron.SimplSharp.CrestronIO.Directory.GetApplicationDirectory()`, then restart the program. Transfer it through an authorized secure connection. Keep this file outside source control and shared archives. A missing password file permits the unauthenticated PJLink mode. During commissioning, confirm that the file survives a program reload; Crestron's documentation does not state whether loading a program replaces the program directory's contents.
 4. Open the processor console and use the commands below.
 
 | Command | Behavior |
@@ -69,7 +69,7 @@ Select a programmable 4-Series processor whose firmware supports full .NET 6 pro
 | `pjlink off` | Request power off |
 | `pjlink disconnect` | Close the connection and invalidate cached power feedback |
 
-The program waits for an explicit `connect` command after startup. Run `query` after each power command completes to observe `Off`, `Warming`, `On`, or `Cooling`. If the peer closes an idle connection, reconnect before the next query. The host issues no automatic power-command retries.
+The program waits for an explicit `connect` command after startup. `Ready` means the display's greeting was accepted. With `PJLINK 1`, the password is confirmed only when the first command receives a response other than `PJLINK ERRA`. While the program is paused, `pjlink` commands are ignored without a reply. Run `query` after each power command completes to observe `Off`, `Warming`, `On`, or `Cooling`. If the peer closes an idle connection, reconnect before the next query. The host issues no automatic power-command retries.
 
 For a lab walkthrough, query a display in standby, request power on, and query through warm-up. Then request power off and observe cooling and standby. Exercise a wrong password, unavailable device, interrupted connection, pause/resume, and program stop/restart. Record the processor model, firmware, display model, and observed results.
 
@@ -77,15 +77,16 @@ For a lab walkthrough, query a display in standby, request power on, and query t
 
 | Check | Status |
 | --- | --- |
-| Core and test build | Passed in the Linux verification environment with .NET SDK 8.0.427 |
-| Core regression tests | 18 of 18 test groups passed |
-| Adapter regression tests using SDK doubles | 8 of 8 test groups passed |
-| Crestron SDK compilation and CPZ packaging | Passed using the official, unmodified SDK build targets on Linux |
-| Execution on macOS | Pending |
-| Execution on a physical Crestron processor | Pending |
-| Real display, network recovery, and shutdown exercise | Pending |
+| Clean build on macOS 27.2 arm64 with .NET SDK 10.0.403 | Passed with 0 warnings and 0 errors at commit `7cf31ae` |
+| Core regression tests on .NET 10 | 18 of 18 test groups passed, exit code 0 |
+| Adapter regression tests using SDK doubles on .NET 10 | 9 of 9 test groups passed, exit code 0 |
+| Crestron SDK compilation and CPZ packaging on macOS | Passed using the official, unmodified SDK build targets; CPZ inspected |
+| Original Linux build and tests with .NET SDK 8.0.427 | Passed at commit `544b222`; preserved in `VALIDATION.txt` |
+| Original `net8.0` tests on macOS with .NET SDK 10.0.403 | Passed 18/18 and 8/8 at commit `544b222` only with an explicit `DOTNET_ROLL_FORWARD=Major` override; superseded by the native .NET 10 rows above |
+| Execution on a physical Crestron processor and firmware | Pending |
+| Real display, network recovery, and lifecycle exercise | Pending |
 
-The core tests cover fragmentation, authentication, power states, acknowledgments, error responses, overlapping requests, timeout boundaries, late data, restart, invalid messages, and buffer limits. The adapter tests cover pause/resume, stop, stale callbacks, inline callbacks, console-command ownership, transport failures, and runtime password loading. Processor callback behavior and real device timing require the lab exercise above.
+The core tests cover fragmentation, authentication, power states, acknowledgments, error responses, overlapping requests, timeout boundaries, late data, restart, invalid messages, and buffer limits. The adapter tests cover pause/resume, stop, stale callbacks, inline callbacks, console-command ownership, transport failures, timer-driven timeouts, and runtime password loading. Processor callback behavior and real device timing require the lab exercise above.
 
 ## Preparation
 

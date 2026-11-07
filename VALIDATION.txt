@@ -1,3 +1,151 @@
+Validation record
+
+Contents
+1. Current: macOS arm64, native .NET 10 (source commit 7cf31ae)
+2. Earlier macOS run: original net8.0 tests with explicit roll-forward (commit 544b222)
+3. Historical: Linux x86_64, .NET SDK 8.0.427 (commit 544b222), preserved verbatim
+4. Pending commissioning
+
+Commit 7cf31ae contains all source and project changes. The commit that adds
+this file changes documentation only (README.md and VALIDATION.txt).
+
+
+1. Current: macOS arm64, native .NET 10
+=======================================
+
+Reviewed source commit 7cf31ae9da53246337bb909ce4f17ece60a19388
+Branch review/dotnet10-redteam, clean working tree at validation time.
+Changes since 544b222:
+  7c5477b  Retarget both desktop test executables from net8.0 to net10.0.
+  7cf31ae  Add an internal clock-injection constructor to ControlSystem and an
+           adapter test for timer-driven greeting and command timeouts.
+Unchanged targets: processor program net6.0, protocol library netstandard2.0.
+Crestron.SimplSharp.SDK.Program 2.22.40 is the newest package on NuGet
+(published 2026-10-06), and its libraries ship only net47 and net6.0 assemblies.
+
+Environment
+Recorded 2026-11-07T00:10:12Z.
+macOS 27.2 (build 26B123), arm64.
+Selected SDK, from the repository directory: dotnet --version 10.0.403.
+Installed SDKs: 10.0.403 only. No global.json.
+Installed runtimes: Microsoft.NETCore.App 10.0.14, Microsoft.AspNetCore.App 10.0.14.
+No DOTNET_* environment variables set; no roll-forward override.
+The bin and obj directories were deleted before the build.
+Absolute paths below are shortened relative to the repository root.
+
+$ dotnet build CrestronSample.sln -c Release
+  Determining projects to restore...
+  Restored tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj (in 36 ms).
+  Restored tests/DisplayControl.Tests/DisplayControl.Tests.csproj (in 36 ms).
+  Restored src/DisplayControl.Core/DisplayControl.Core.csproj (in 80 ms).
+  Restored src/CrestronSample/CrestronSample.csproj (in 84 ms).
+  DisplayControl.Core -> src/DisplayControl.Core/bin/Release/netstandard2.0/DisplayControl.Core.dll
+  CrestronSample -> src/CrestronSample/bin/Release/net6.0/CrestronSample.dll
+  CrestronAdapter.Tests -> tests/CrestronAdapter.Tests/bin/Release/net10.0/CrestronAdapter.Tests.dll
+  DisplayControl.Tests -> tests/DisplayControl.Tests/bin/Release/net10.0/DisplayControl.Tests.dll
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+Time Elapsed 00:00:00.84
+Build exit code 0
+$ dotnet run --project tests/DisplayControl.Tests/DisplayControl.Tests.csproj -c Release --no-build
+PASS Fragmented greeting waits for CR
+PASS Official MD5 fixture and first-command prefix
+PASS Power queries decode all four states
+PASS Set acknowledgments preserve confirmed feedback
+PASS Fragmented responses and CRLF are framed
+PASS Trailing data cannot satisfy a callback-created command
+PASS Idle partial replies cannot complete a future query
+PASS Idle partial acknowledgments cannot complete a future write
+PASS One command can be outstanding
+PASS Device errors complete without invented feedback
+PASS Missing greeting and response time out
+PASS Late replies cannot complete timed-out commands
+PASS Disconnect clears state and partial data
+PASS Authentication failure invalidates session
+PASS Invalid greetings are rejected
+PASS Malformed or unexpected responses are rejected
+PASS Oversized and non-ASCII frames are rejected
+PASS Configuration rejects invalid passwords and timeout
+18/18 test groups passed.
+Test exit code 0
+$ dotnet run --project tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj -c Release --no-build
+PASS Pause closes resources and suppresses commands and callbacks
+PASS Resume requires an explicit new connection
+PASS Stop while paused releases registrations and stays stopped
+PASS Late callbacks cannot replace the current connection
+PASS Inline callbacks defer disposal until the outer lock exits
+PASS Failed registration preserves another console command
+PASS Send failure and invalid ASCII close the connection
+PASS Timer-driven timeouts close the socket and permit reconnection
+PASS Runtime password file supplies authentication without credential logs
+9/9 adapter test groups passed using SDK doubles.
+Test exit code 0
+CPZ inspection
+size 6676976 bytes
+c02f803b987dc681e10af9dbd1ad65051a12cd73dfb50e1705d23cb8ddbc16ef  src/CrestronSample/bin/Release/net6.0/CrestronSample.cpz
+No errors detected in compressed data of src/CrestronSample/bin/Release/net6.0/CrestronSample.cpz.
+entries 40
+DisplayControl.Core.dll
+CrestronSample.dll
+ProgramInfo.config
+no absolute or parent paths
+password file absent
+<ProgramInfo>
+  <RequiredInfo>
+    <FriendlyName>CrestronSample</FriendlyName>
+    <SystemName>CrestronSample</SystemName>
+    <EntryPoint>CrestronSample</EntryPoint>
+    <DesignToolId>6</DesignToolId>
+    <ProgramToolId>6</ProgramToolId>
+    <TargetFramework>v6.0</TargetFramework>
+  </RequiredInfo>
+  <OptionalInfo>
+    <CompiledOn>2026-11-06T16:10:13.049-08:00</CompiledOn>
+    <CompilerRev>1.0.0.0</CompilerRev>
+  </OptionalInfo>
+  <Plugin>
+    <Include4.dat>2.22.40</Include4.dat>
+  </Plugin>
+</ProgramInfo>
+Adversarial check for the new adapter test
+OnTimer was temporarily changed to RunSerialized(() => { }) and the adapter tests rebuilt.
+FAIL Timer-driven timeouts close the socket and permit reconnection - Expected True, received False.
+8/9 adapter test groups passed using SDK doubles. Exit code 1.
+The production source was restored before commit 7cf31ae.
+
+The CPZ size and hash differ from the Linux record because the archive embeds
+a CompiledOn timestamp and was built by a different SDK on a different host.
+Entry count, assemblies, ProgramInfo target, and SDK version match.
+
+
+2. Earlier macOS run: original net8.0 tests with explicit roll-forward
+======================================================================
+
+Source commit 544b222, unmodified. macOS 27.2 arm64, .NET SDK 10.0.403,
+runtime Microsoft.NETCore.App 10.0.14 only.
+
+dotnet build CrestronSample.sln -c Release
+Build succeeded. 0 Warning(s). 0 Error(s). CrestronSample.cpz produced.
+
+The documented commands then failed to launch the net8.0 test executables:
+"You must install or update .NET to run this application."
+Framework: 'Microsoft.NETCore.App', version '8.0.0' (arm64); only 10.0.14 found.
+
+As a provisional check only, the tests were run with an explicit
+major-version roll-forward onto the .NET 10 runtime:
+DOTNET_ROLL_FORWARD=Major dotnet run --project <test project> -c Release --no-build
+DisplayControl.Tests   18/18 test groups passed. Exit code 0.
+CrestronAdapter.Tests  8/8 adapter test groups passed using SDK doubles. Exit code 0.
+That override is not part of the documented workflow and was not used in section 1.
+
+
+3. Historical: Linux x86_64, .NET SDK 8.0.427 (commit 544b222)
+==============================================================
+
+Preserved verbatim. The source SHA-256 values at its end were re-checked
+against commit 544b222 and all 13 match.
+
 Verification recorded on 2026-11-06T22:55:48.963303+00:00
 Environment Linux x86_64, .NET SDK 8.0.427, Crestron SDK 2.22.40.
 macOS execution and physical processor/display exercise remain pending.
@@ -112,3 +260,13 @@ e71b6cc9f0e6abe90deb093a0541db75d12766ce113354d02449e636c04a6f7d  tests/Crestron
 ce75e4aa052d3b8015a59d6a09456e9af40492b4fd3e487bd181d6470fe53686  tests/CrestronAdapter.Tests/SdkDoubles.cs
 63be544b478a5d9931679c8f748c1a19f79f4e6e7c174dfeefd48bc8549b7611  tests/DisplayControl.Tests/DisplayControl.Tests.csproj
 c596e5a993ca5a0b3ca5bfd7302b0bf823b552b03fc64f6176627366ca736bcf  tests/DisplayControl.Tests/Program.cs
+
+
+4. Pending commissioning
+========================
+
+Not yet performed: execution on a physical 4-Series processor; processor model
+and firmware recording; a real PJLink display; wrong-password, unavailable-device,
+and interrupted-connection recovery; pause/resume and program stop/restart on
+hardware; whether pjlink-password.txt survives a program reload in the
+program directory.
