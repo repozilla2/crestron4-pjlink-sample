@@ -18,6 +18,7 @@ var tests = new (string Name, Action Run)[]
     ("Inline callbacks defer disposal until the outer lock exits", InlineCallbacks),
     ("Failed registration preserves another console command", RegistrationOwnership),
     ("Send failure and invalid ASCII close the connection", TransportFailures),
+    ("Timer-driven timeouts close the socket and permit reconnection", TimerTimeouts),
     ("Runtime password file supplies authentication without credential logs", RuntimePassword)
 };
 
@@ -146,6 +147,44 @@ static void StaleCallbacks()
     newConnection.Deliver("%1POWR=1\r");
     Equal(false, newConnection.IsDisposed);
     Equal(1, newConnection.Sent.Count);
+}
+
+static void TimerTimeouts()
+{
+    TimeSpan now = TimeSpan.Zero;
+    var program = new ControlSystem(() => now);
+    program.InitializeSystem();
+    CTimer timer = CTimer.Created.Single();
+
+    // Greeting timeout: the connection completes but the display never greets.
+    CrestronConsole.Command!("connect");
+    TCPClient silent = TCPClient.Created.Last();
+    silent.CompleteConnection();
+    now = TimeSpan.FromSeconds(29.9);
+    timer.DeliverCallback();
+    Equal(false, silent.IsDisposed);
+    now = TimeSpan.FromSeconds(30);
+    timer.DeliverCallback();
+    Equal(true, silent.IsDisposed);
+    Equal(true, CrestronConsole.Messages.Any(message => message.Contains("Timed out waiting for the PJLink greeting", StringComparison.Ordinal)));
+
+    // Command timeout: a query with no reply closes the socket and clears feedback.
+    TCPClient slow = Connect();
+    CrestronConsole.Command!("query");
+    slow.Deliver("%1POWR=1\r");
+    CrestronConsole.Command!("query");
+    now += TimeSpan.FromSeconds(30);
+    timer.DeliverCallback();
+    Equal(true, slow.IsDisposed);
+    Equal(true, CrestronConsole.Messages.Any(message => message.Contains("Timed out waiting for the PJLink command response", StringComparison.Ordinal)));
+    Equal("PJLink power feedback = Unknown.", CrestronConsole.Messages.Last(message => message.StartsWith("PJLink power feedback", StringComparison.Ordinal)));
+
+    // A late reply on the timed-out socket is ignored, and an explicit reconnect works.
+    slow.Deliver("%1POWR=0\r");
+    TCPClient fresh = Connect();
+    CrestronConsole.Command!("query");
+    Equal("%1POWR ?\r", fresh.Sent.Single());
+    Equal(false, fresh.IsDisposed);
 }
 
 static void TransportFailures()

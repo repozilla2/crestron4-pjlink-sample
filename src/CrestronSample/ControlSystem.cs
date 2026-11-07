@@ -14,6 +14,7 @@ public sealed class ControlSystem : CrestronControlSystem
         "us-ascii", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
     private readonly object gate = new object();
     private readonly Stopwatch clock = new Stopwatch();
+    private readonly Func<TimeSpan> now;
     private readonly PjLinkSession session;
     private readonly bool consoleCommandRegistered;
     private TCPClient? client;
@@ -23,8 +24,14 @@ public sealed class ControlSystem : CrestronControlSystem
     private bool paused;
     private bool stopped;
 
-    public ControlSystem()
+    public ControlSystem() : this(null)
     {
+    }
+
+    // The adapter tests supply a manual clock to drive timeouts without waiting.
+    internal ControlSystem(Func<TimeSpan>? monotonicClock)
+    {
+        now = monotonicClock ?? (() => clock.Elapsed);
         Crestron.SimplSharpPro.CrestronThread.Thread.MaxNumberOfUserThreads = 20;
         try
         {
@@ -102,9 +109,9 @@ public sealed class ControlSystem : CrestronControlSystem
                     }
 
                     if (operation == "query")
-                        session.QueryPower(clock.Elapsed);
+                        session.QueryPower(now());
                     else
-                        session.SetPower(operation == "on", clock.Elapsed);
+                        session.SetPower(operation == "on", now());
                     break;
                 default:
                     CrestronConsole.ConsoleCommandResponse(
@@ -123,7 +130,7 @@ public sealed class ControlSystem : CrestronControlSystem
         }
 
         client = new TCPClient(SampleConfiguration.DisplayHost, SampleConfiguration.DisplayPort, 4096);
-        session.Begin(clock.Elapsed);
+        session.Begin(now());
         SocketErrorCodes result = client.ConnectToServerAsync(OnConnected);
         if (!OperationStarted(result))
             FailConnection("Connection could not start. Socket result " + result + ".");
@@ -168,7 +175,7 @@ public sealed class ControlSystem : CrestronControlSystem
 
             // Convert the SDK buffer before scheduling another receive that can reuse it.
             string chunk = ProtocolEncoding.GetString(connection.IncomingDataBuffer, 0, byteCount);
-            session.Receive(chunk, clock.Elapsed);
+            session.Receive(chunk, now());
             if (!closeRequested)
                 ReceiveNext(connection);
         });
@@ -194,7 +201,7 @@ public sealed class ControlSystem : CrestronControlSystem
 
     private void OnTimer(object? state)
     {
-        RunSerialized(() => session.CheckTimeout(clock.Elapsed));
+        RunSerialized(() => session.CheckTimeout(now()));
     }
 
     private void FailConnection(string reason)
