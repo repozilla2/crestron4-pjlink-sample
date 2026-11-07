@@ -2,7 +2,7 @@
 
 ## PJLink display power control
 
-Prepared for Keith Gariepy · 6 November 2026
+**Keith Gariepy · Crestron 4-Series programming sample**
 
 This original, AI-assisted example demonstrates a small SIMPL# Pro program for a programmable 4-Series control system. An operator connects to a PJLink display, queries its power state, requests power on or off, and reads the resulting feedback. The source includes a reusable protocol component, the Crestron TCP adapter, and two executable regression-test harnesses.
 
@@ -33,7 +33,9 @@ The protocol target is the power-control subset of PJLink Class 1 version 1.04, 
 
 ## Build and exercise on macOS
 
-Install the .NET 10 SDK for the Mac's architecture. The desktop test executables target `net10.0` and need the .NET 10 runtime, which the SDK includes. Microsoft supports .NET 10 into November 2028; .NET 8 support ends on November 10, 2026. Visual Studio Code is optional. Package restore needs access to NuGet. [Microsoft macOS installation guide](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
+Install the .NET 10 SDK, version `10.0.403` or a later stable 10.0 release, for the Mac's architecture. The repository's `global.json` sets `10.0.403` as the minimum with `rollForward` set to `latestFeature` and prerelease SDKs disallowed. The build uses the newest installed stable 10.0 SDK at or above that version, including later patches and feature bands such as `10.0.5xx`. Lower 10.0 SDKs, other major or minor versions, and prerelease SDKs are rejected. Run `dotnet --version` from the repository root to see the selected SDK. `global.json` selects the SDK only; each project's target framework determines its runtime. [Microsoft global.json reference](https://learn.microsoft.com/en-us/dotnet/core/tools/global-json)
+
+The desktop test executables target `net10.0` and need the .NET 10 runtime, which the SDK includes. Microsoft's support policy lists .NET 10 (LTS) support through November 14, 2028 and .NET 8 support ending November 10, 2026. [Microsoft .NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy) Visual Studio Code is optional. Package restore needs access to NuGet. [Microsoft macOS installation guide](https://learn.microsoft.com/en-us/dotnet/core/install/macos)
 
 Building the processor project requires appropriate authorization to use Crestron's SDK under its applicable software-development terms. The repository contains original source and package references. SDK assemblies are restored through NuGet during the build. [Crestron software-development terms](https://www.crestron.com/Legal/software-license-agreement/Software-Development-Tools-License-Agreement)
 
@@ -45,7 +47,7 @@ dotnet run --project tests/DisplayControl.Tests/DisplayControl.Tests.csproj -c R
 dotnet run --project tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj -c Release --no-build
 ```
 
-Each test executable returns exit code `0` when every group passes and exit code `1` when any group fails. Both use small dependency-free harnesses with explicit assertions. The core targets `netstandard2.0`, both test executables target `net10.0`, and the processor program targets `net6.0`. The processor target follows the Crestron SDK: package `2.22.40` ships only `net47` and `net6.0` assemblies.
+Each test executable returns exit code `0` when every group passes and exit code `1` when any group fails. Both use small dependency-free harnesses with explicit assertions. The core targets `netstandard2.0`, both test executables target `net10.0`, and the processor program targets `net6.0`. The processor target follows the Crestron SDK: package `2.22.40` ships only `net47` and `net6.0` assemblies. Microsoft's own .NET 6 support ended November 12, 2024; on the processor, the .NET 6 runtime comes with Crestron's firmware.
 
 The adapter tests compile the production adapter source against explicit SDK doubles. They exercise its control-flow decisions, including adverse callback ordering and timer-driven timeouts. An internal constructor lets the tests supply a manual clock; the processor uses the public constructor and a `Stopwatch`. Processor runtime behavior and device integration remain part of the lab exercise below.
 
@@ -90,4 +92,4 @@ The core tests cover fragmentation, authentication, power states, acknowledgment
 
 ## Preparation
 
-The source was created specifically for this review with OpenAI Codex assistance and checked through code review, actual compilation, and the recorded tests. The example uses published protocol and SDK information. It is supplied with source and verification evidence so its behavior and design choices can be examined directly.
+This original programming sample was developed with assistance from OpenAI Codex, followed by review, targeted improvements, and macOS build and test validation with Claude Code. Reproducible commands, validation results, and outstanding hardware checks are documented in `VALIDATION.txt`.
