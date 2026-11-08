@@ -1,3 +1,63 @@
+Current adapter regression-hardening validation
+===============================================
+
+Run date November 7, 2026 in America/Los_Angeles.
+Final tests completed 2026-11-08T04:56:56Z. CPZ inspection completed
+2026-11-08T04:57:18Z. The reviewed working tree is based on
+e857e704028a6380c35818d19dd2e6dcb1b8fead.
+
+Environment was Ubuntu 24.04 Linux x64, .NET SDK 10.0.403, runtime 10.0.14,
+Python 3.12.14 and Crestron SDK 2.22.40. The declared targets are
+netstandard2.0 for the protocol, net6.0 for the processor, and net10.0
+for the desktop tests. The runner used the same SDK environment settings
+documented in the preceding runtime-host validation below.
+
+The final clean single-node build passed with exit code 0, 0 warnings and
+0 errors using dotnet build CrestronSample.sln -c Release -m:1.
+All seven final desktop suites passed with exit code 0.
+
+  Primary protocol tests        18/18 groups
+  Primary adapter tests         13/13 groups
+  RMC3 protocol tests            18/18 groups
+  RMC3 adapter tests             15/15 groups
+  RMC3 event tests                5/5 groups
+  Python virtual-display tests  36/36 cases
+  RMC3 loopback TCP integration  11/11 scenarios
+
+Four deliberate mutations each built successfully and failed exactly the
+intended adapter group. They rejected a legal 64-character configuration,
+exposed the host-file exception path, retained On feedback after peer closure,
+or included the invalid password fixture in the startup log. Production
+source bytes were restored after every mutation. The clean build and final
+suites above ran after restoration.
+
+Adapter test Program.cs SHA-256
+c21b97473b3c4f6ff67753df67272ae7d0a11197207523973736525d773ef601
+
+Production source files byte-match e857e70. The RMC3 production hashes also
+match the existing hardware record. SDK archives match the packages whose
+signatures were verified in the preceding run.
+
+The newly generated CPZ passed CRC checks for all 40 entries and contains
+both application assemblies. Its descriptor records framework v6.0 and SDK
+2.22.40. Runtime host and password files are absent.
+
+  CPZ bytes   6677897
+  CPZ SHA-256 1fe84cb83d1c0d7b2c3c9a1894d5c6e54fd0def1246b6ebfb4cf5d76897cf3e5
+  Compiled    2026-11-07T20:56:37.056-08:00
+
+Rebuilding records a new compile time, so the new package has its own
+checksum. These results cover desktop execution and packaging. Execution
+on a 4-Series processor or VC-4 and a physical PJLink display remain pending.
+
+
+Previous runtime-host validation from e857e70
+============================================
+
+The following record describes the preceding runtime-host revision. Its
+parallel-build paragraph has been clarified to identify the single-node command
+used for that run. Its remaining results and source hashes retain their recorded meaning.
+
 Current runtime-host revision validation
 ========================================
 
@@ -50,8 +110,9 @@ All seven final suites passed with exit code 0.
 
 Additional commands are in lab/Rmc3PjLink/README.txt. Adapter suites use SDK
 doubles. The TCP harness links the RMC3 protocol port and uses desktop sockets.
-The default parallel-build failure recorded below belongs to the preceding
-revision. The current run used the documented single-node command.
+The default parallel-build failure recorded below was observed in the preceding
+run. This validation exercised only the documented single-node command. Default
+parallel-build behavior for this revision remains unverified.
 
 Destination regression check
 

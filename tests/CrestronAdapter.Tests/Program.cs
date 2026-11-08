@@ -22,7 +22,8 @@ var tests = new (string Name, Action Run)[]
     ("Production construction uses the running monotonic Stopwatch", ProductionClock),
     ("Runtime password file supplies authentication without credential logs", RuntimePassword),
     ("Runtime host file is required, validated, and read on each connect", RuntimeHost),
-    ("Idle peer closure is reported distinctly from a mid-transaction closure", PeerClosure)
+    ("Idle peer closure is reported distinctly from a mid-transaction closure", PeerClosure),
+    ("Configuration bound is exactly 64 characters and invalid passwords stop startup safely", ConfigurationBounds)
 };
 
 int failures = 0;
@@ -299,6 +300,7 @@ static void RuntimeHost()
         CrestronConsole.Command!("connect");
         Equal(0, TCPClient.Created.Count);
         Equal(true, CrestronConsole.Messages.Last().Contains("could not be read", StringComparison.Ordinal));
+        Equal(false, CrestronConsole.Messages.Last().Contains(Crestron.SimplSharp.CrestronIO.Directory.TestApplicationDirectory, StringComparison.Ordinal));
     }
     finally
     {
@@ -336,10 +338,50 @@ static void PeerClosure()
 
     TCPClient busy = Connect();
     CrestronConsole.Command!("query");
+    busy.Deliver("%1POWR=1\r");
+    CrestronConsole.Command!("query");
     busy.Deliver(Array.Empty<byte>());
     Equal(true, busy.IsDisposed);
-    Equal(true, CrestronConsole.Messages.Last().Contains("during a transaction", StringComparison.Ordinal));
-    Equal(true, CrestronConsole.Messages.Last().Contains("outcome is unknown", StringComparison.Ordinal));
+    string closure = CrestronConsole.Messages.Last(message => message.StartsWith("PJLink connection closed", StringComparison.Ordinal));
+    Equal(true, closure.Contains("during a transaction", StringComparison.Ordinal));
+    Equal(true, closure.Contains("outcome is unknown", StringComparison.Ordinal));
+    Equal("PJLink power feedback = Unknown.", CrestronConsole.Messages.Last(message => message.StartsWith("PJLink power feedback", StringComparison.Ordinal)));
+}
+
+static void ConfigurationBounds()
+{
+    // 64 characters including trailing line endings is accepted; 65 is rejected.
+    Start();
+    WriteHost("10.0.0.1" + new string('\n', 56));
+    TCPClient accepted = Connect();
+    Equal("10.0.0.1", accepted.Host);
+    CrestronConsole.Command!("disconnect");
+    WriteHost("10.0.0.1" + new string('\n', 57));
+    CrestronConsole.Command!("connect");
+    Equal(1, TCPClient.Created.Count);
+    CrestronEnvironment.Raise(eProgramStatusEventType.Stopping);
+
+    string path = Path.Combine(Crestron.SimplSharp.CrestronIO.Directory.TestApplicationDirectory, "pjlink-password.txt");
+    try
+    {
+        foreach (string password in new[] { new string('a', 33), new string('b', 65), "pass word" })
+        {
+            CrestronEnvironment.Reset();
+            CrestronConsole.Reset();
+            File.WriteAllText(path, password);
+            bool threw = false;
+            try { _ = new ControlSystem(); }
+            catch (InvalidOperationException) { threw = true; }
+            Equal(true, threw);
+            Equal<Action<string>?>(null, CrestronConsole.Command);
+            Equal(true, CrestronConsole.Messages.Any(message => message.StartsWith("PJLink configuration failed with", StringComparison.Ordinal)));
+            Equal(false, CrestronConsole.Messages.Any(message => message.Contains(password.Trim(), StringComparison.Ordinal)));
+        }
+    }
+    finally
+    {
+        File.Delete(path);
+    }
 }
 
 static void Equal<T>(T expected, T actual)

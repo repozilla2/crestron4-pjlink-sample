@@ -9,7 +9,7 @@ A SIMPL# Pro C# sample for PJLink Class 1 display power control. It demonstrates
 | Component or environment | Recorded result |
 | --- | --- |
 | Primary protocol core, `netstandard2.0` | 18 desktop test groups passed |
-| Primary adapter, `net6.0`, SDK 2.22.40 | Release build and CPZ packaging passed, plus 12 desktop adapter groups using SDK doubles |
+| Primary adapter, `net6.0`, SDK 2.22.40 | Release build and CPZ packaging passed, plus 13 desktop adapter groups using SDK doubles |
 | RMC3-compatible port | 20 hardware acceptance checks passed against the virtual display on November 7, 2026 |
 | RMC3 port in the desktop TCP harness | 11 loopback scenarios passed |
 | Python virtual display | 36 simulator tests passed |
