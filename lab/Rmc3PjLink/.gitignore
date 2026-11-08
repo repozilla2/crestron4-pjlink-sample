@@ -1,0 +1,5 @@
+build/
+bin/
+obj/
+pjlink-host.txt
+pjlink-password.txt

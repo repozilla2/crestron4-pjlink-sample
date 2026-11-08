@@ -1,3 +1,72 @@
+Current desktop revalidation
+============================
+
+Completed 2026-11-08T03:32:09Z, November 7, 2026 in America/Los_Angeles.
+Environment was Ubuntu 24.04 Linux x64, .NET SDK 10.0.403, .NET runtime
+10.0.14 and Python 3.12.14. global.json selected the installed SDK.
+
+The publication working tree was based on
+80e58b24482c14ed364f703c2fedf6aace041094. All 10 original source, project
+and test files under src/ and tests/ byte-match that revision. The three
+RMC3 production sources and the virtual-display source byte-match the
+hardware-tested kit. Production-source pins and the completed physical
+RMC3 run are recorded in docs/HARDWARE-VALIDATION.md.
+
+The runner set DOTNET_ROOT to its installed SDK directory,
+MSBUILDDISABLENODEREUSE=1 and DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER=1.
+The inherited environment contained no DOTNET_* variables. Test execution
+used the installed .NET 10 runtime without a roll-forward override.
+
+The original solution's bin and obj directories were removed before the
+final clean build. This command passed with exit code 0, 0 warnings and
+0 errors, starting at 2026-11-08T03:29:00Z.
+
+  dotnet build CrestronSample.sln -c Release -m:1
+
+The default command without -m:1 exited 1 during solution restore-graph
+evaluation and reported 0 warnings and 0 errors. Diagnostic output identified
+_FilterRestoreGraphProjectInputItems and _IsProjectRestoreSupported as failed
+targets. The precise cause is unresolved. NuGet restore and single-node
+solution builds succeeded on the same source and dependencies.
+
+All seven desktop suites passed with exit code 0.
+
+  Original protocol tests       18/18 groups
+  Original adapter tests        10/10 groups
+  RMC3 protocol tests            18/18 groups
+  RMC3 adapter tests             15/15 groups
+  RMC3 event tests                5/5 groups
+  Python virtual-display tests  36/36 cases
+  Loopback TCP integration      11/11 scenarios
+
+The final RMC3 adapter fixture uses generic private IPv4 test addresses.
+It was rebuilt and rerun after that fixture cleanup. Its SHA-256 is
+87c730e35a8a776ffc6e3dc5042a2c141ba4ac5ebfcfbfc69c75a22224745094.
+
+Original test commands are in README.md. The additional commands are in
+lab/Rmc3PjLink/README.txt and lab/VirtualPjLink/README.md. Adapter tests use
+SDK doubles. Integration scenarios use actual loopback TCP with the ported
+protocol linked into a desktop transport harness.
+
+Generated 4-Series CPZ inspection passed ZIP CRC validation for all 40 entries.
+CrestronSample.dll and DisplayControl.Core.dll are present. The descriptor
+records framework v6.0 and Crestron SDK 2.22.40. The archive contains no
+password-named file.
+
+  CPZ bytes   6676713
+  CPZ SHA-256 93d1b8f8027e6eaad533b7163ee99401ef50b0a809d64c9d9fbc5d672e186e38
+  Compiled    2026-11-07T19:29:05.354-08:00
+
+Rebuilds record a new compile time, so package checksums can change.
+Physical 4-Series, VC-4 and real-display validation remain pending.
+
+
+Retained validation record from 80e58b2
+======================================
+
+The following record is preserved as published. Its Current and Superseded
+labels describe the validation history as of that revision.
+
 Validation record
 
 Contents
