@@ -1,6 +1,11 @@
 Current adapter regression-hardening validation
 ===============================================
 
+This file is a cumulative validation history. Only the opening section records
+validation of the latest reviewed revision. Headings labeled "Current" in
+archived sections preserve their historical wording; they do not describe the
+current repository head.
+
 Run date November 7, 2026 in America/Los_Angeles.
 Final tests completed 2026-11-08T04:56:56Z. CPZ inspection completed
 2026-11-08T04:57:18Z. The reviewed working tree is based on

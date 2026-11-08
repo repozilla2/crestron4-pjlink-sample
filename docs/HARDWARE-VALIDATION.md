@@ -12,13 +12,13 @@ The tested implementation is the Compact Framework 3.5 port in `lab/Rmc3PjLink`.
 | PUF / OS | `1.8001.0298` / `1.8001.6192.21873` |
 | Simulator environment | macOS 27.2, build 26B123, Python 3.15.2 |
 | Base sample revision | `80e58b24482c14ed364f703c2fedf6aace041094` |
-| Retained Windows build-record revision | `4fdb6275b57179666ad370b20fdebf93a08ea7a7` |
+| Retained Windows build-record revision (private build lab) | `4fdb6275b57179666ad370b20fdebf93a08ea7a7` |
 | Deployed package | `Rmc3PjLink.cpz`, 2,715,107 bytes, 11 archive entries |
 | CPZ SHA-256 | `2e8422466e252ace2f93b4405d23a219e35c28e52567e620565e376cbfa6c54d` |
 | Signed application DLL SHA-256 | `8c6120916759780ba4bf208cec138a64a1f3edd94a2270dbed537718e45410b6` |
 | Hardware review archive SHA-256 | `013d3b79177df0d4c3ff1a8af17f0bc64320ef0edb6e20b1a73bcb6600c800b3` |
 
-The build-record revision identifies the retained build workspace. These source hashes provide the direct correspondence between the published production files and the hardware-tested package.
+The build-record revision identifies a private build workspace that is not publicly accessible to a GitHub reviewer. The published production-source hashes below provide a directly checkable correspondence to the hardware-tested source, while the package hashes identify the retained build artifact.
 
 | Production file | SHA-256 |
 | --- | --- |

@@ -1,8 +1,10 @@
 # Crestron 4-Series PJLink programming sample
 
-**Keith Gariepy**
+**Keith Gariepy — Crestron Master Certified Programmer**
 
 A SIMPL# Pro C# sample for PJLink Class 1 display power control. It demonstrates protocol framing, authentication, confirmed power feedback, and serialized lifecycle handling. An operator uses console commands to connect, query, and request power changes.
+
+Developed under my technical direction with AI pair-programming and review tools. My Crestron background informed the requirements, review criteria, hardware test setup, and acceptance decisions; AI tools contributed substantive implementation, tests, and documentation.
 
 ## Validation
 
@@ -90,6 +92,10 @@ For commissioning, connect and query a display in standby, request power on, and
 - `lab/VirtualPjLink/` — Python PJLink display simulator with fault injection
 - `lab/PjLinkIntegration.Tests/` — loopback-TCP integration harness
 
-## How this was built
+## Engineering direction and AI contribution
 
-Developed with assistance from OpenAI Codex, Claude Code, and ChatGPT under Keith Gariepy's direction.
+I developed this sample as a Crestron Master Certified Programmer with a background in enterprise audiovisual systems design, programming, and deployment. I established the PJLink control and validation objectives, evaluated proposed technical approaches, directed iterations and red-team reviews, and accepted changes based on their engineering merits and test evidence.
+
+I used OpenAI Codex, ChatGPT, and Claude Code as AI pair-programming, research, and review tools. They generated and revised substantive portions of the C# implementation, Python PJLink simulator, tests, and documentation. My contribution was technical direction, domain-specific evaluation, test-environment setup, and judgment about what the available evidence supports; I do not claim to have manually written every line.
+
+For hardware validation, I configured and updated my Crestron RMC3, established processor and Mac network/console access, and directed an AI-assisted test procedure for a 3-Series-compatible port against a Mac-hosted PJLink simulator. The [hardware validation record](docs/HARDWARE-VALIDATION.md) distinguishes this physical RMC3 exercise from the still-pending 4-Series and real-display tests.
