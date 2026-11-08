@@ -3,6 +3,7 @@
 **/__pycache__/
 .vs/
 .DS_Store
+pjlink-host.txt
 pjlink-password.txt
 *.cpz
 *.clz

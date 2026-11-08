@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.CrestronSockets;
@@ -75,7 +76,7 @@ public sealed class ControlSystem : CrestronControlSystem
             timeoutTimer ??= new CTimer(OnTimer, null, 250, 250);
         }
 
-        CrestronConsole.PrintLine("PJLink sample loaded. Configure SampleConfiguration.cs before connecting.");
+        CrestronConsole.PrintLine("PJLink sample loaded. Configure pjlink-host.txt before connecting.");
     }
 
     private void OnConsoleCommand(string arguments)
@@ -129,7 +130,22 @@ public sealed class ControlSystem : CrestronControlSystem
             return;
         }
 
-        client = new TCPClient(SampleConfiguration.DisplayHost, SampleConfiguration.DisplayPort, 4096);
+        string host;
+        try
+        {
+            host = SampleConfiguration.ReadHost();
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or IOException
+                                              or UnauthorizedAccessException)
+        {
+            // Keep file contents and raw exception messages out of diagnostics.
+            CrestronConsole.ConsoleCommandResponse(exception is InvalidOperationException
+                ? "Configure pjlink-host.txt with one dotted unicast IPv4 address in the program directory."
+                : "The display host file could not be read (" + exception.GetType().Name + ").");
+            return;
+        }
+
+        client = new TCPClient(host, SampleConfiguration.DisplayPort, 4096);
         session.Begin(now());
         SocketErrorCodes result = client.ConnectToServerAsync(OnConnected);
         if (!OperationStarted(result))
@@ -169,7 +185,13 @@ public sealed class ControlSystem : CrestronControlSystem
 
             if (byteCount <= 0)
             {
-                FailConnection("The display closed the connection.");
+                // Describe the local session state without inferring the peer's reason.
+                string reason = "The display closed the connection before its PJLink greeting was accepted.";
+                if (session.HasPendingCommand)
+                    reason = "The display closed the connection during a transaction. Its outcome is unknown.";
+                else if (session.IsReady)
+                    reason = "The display closed the idle connection. Use pjlink connect before the next command.";
+                FailConnection(reason);
                 return;
             }
 

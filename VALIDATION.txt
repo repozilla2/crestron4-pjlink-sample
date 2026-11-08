@@ -1,3 +1,107 @@
+Current runtime-host revision validation
+========================================
+
+Completed 2026-11-08T04:17:51Z, November 7, 2026 in America/Los_Angeles.
+The reviewed working tree is based on published revision
+92f65a41cd3e707676231b70e364f863d8532e99.
+
+This revision reads pjlink-host.txt for each explicit connection, bounds
+runtime configuration input, distinguishes greeting/idle/transaction closure,
+and adds destination-aware adapter regression coverage. The README identifies
+the operator-driven scope and the hardware coverage for each implementation.
+
+Environment
+
+  Ubuntu 24.04 Linux x64
+  .NET SDK 10.0.403, selected by global.json
+  .NET runtime 10.0.14
+  MSBuild 18.9.15+5a2162bea
+  Python 3.12.14
+  Crestron SDK 2.22.40
+
+The projects retained their declared targets throughout validation.
+The protocol library targets netstandard2.0, the processor project targets
+net6.0, and the desktop test executables target net10.0.
+
+The runner set DOTNET_ROOT to its installed SDK directory,
+MSBUILDDISABLENODEREUSE=1 and DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER=1.
+The inherited environment contained no DOTNET_* variables. Tests executed
+on the installed .NET 10 runtime without a roll-forward override.
+
+Clean build and desktop results
+
+The original solution's four project bin and obj directories were removed
+before the final build. It began at 2026-11-08T04:14:41Z and passed with
+exit code 0, 0 warnings and 0 errors.
+
+  dotnet build CrestronSample.sln -c Release -m:1
+  dotnet run --project tests/DisplayControl.Tests/DisplayControl.Tests.csproj -c Release --no-build
+  dotnet run --project tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj -c Release --no-build
+
+All seven final suites passed with exit code 0.
+
+  Primary protocol tests        18/18 groups
+  Primary adapter tests         12/12 groups
+  RMC3 protocol tests            18/18 groups
+  RMC3 adapter tests             15/15 groups
+  RMC3 event tests                5/5 groups
+  Python virtual-display tests  36/36 cases
+  RMC3 loopback TCP integration  11/11 scenarios
+
+Additional commands are in lab/Rmc3PjLink/README.txt. Adapter suites use SDK
+doubles. The TCP harness links the RMC3 protocol port and uses desktop sockets.
+The default parallel-build failure recorded below belongs to the preceding
+revision. The current run used the documented single-node command.
+
+Destination regression check
+
+A temporary mutation kept ReadHost validation intact while replacing the
+TCPClient destination with the fixed documentation address 192.0.2.10.
+The mutated adapter built successfully. Its suite exited 1 with 11/12 groups
+passing and this single failure.
+
+  Runtime host file is required, validated, and read on each connect
+  Expected 100.64.0.9, received 192.0.2.10.
+
+A finally block restored the exact source bytes. The final clean build and
+all seven successful suites above ran after that restoration.
+
+Source and package identity
+
+SHA-256 for the four changed source/test files in the validated snapshot
+
+563e229757d344b0914e5c2519a9c28b9000b8adb6add8f148e6839b835f0e3a  src/CrestronSample/ControlSystem.cs
+26b1082449fb36c4ed590095db68641689b7b779b1693d66ff3fe3e7db53d310  src/CrestronSample/SampleConfiguration.cs
+bb6f5b0ca6ac3ca6300aab5d72bfadc49e71580911855ff4291ea0931430b094  tests/CrestronAdapter.Tests/Program.cs
+0569b8fc8e3babd62ffa09bc3e007e4909438320440301631a540acad86fe696  tests/CrestronAdapter.Tests/SdkDoubles.cs
+
+The RMC3 production sources and simulator byte-match the hardware-tested kit.
+Their hardware record and source hashes are in docs/HARDWARE-VALIDATION.md.
+
+dotnet nuget verify --all succeeded for the Crestron SDK Library, Program,
+and ProgramLibrary packages at version 2.22.40, including their Crestron
+author signatures and NuGet.org repository countersignatures.
+
+The generated 4-Series CPZ passed ZIP CRC checks for all 40 entries. It
+contains CrestronSample.dll, DisplayControl.Core.dll, and 28 SDK DLLs that
+byte-match the verified packages. Its descriptor specifies framework v6.0
+and SDK 2.22.40. Runtime host and password files are absent.
+
+  CPZ bytes   6677905
+  CPZ SHA-256 7b01e5771feaebcdef86b1387cf7c5048951d601b44b3b63fe0cc8896710e6c2
+  Compiled    2026-11-07T20:14:43.545-08:00
+
+The package checksum can change after a rebuild because it records compile
+time. Execution of this revised package on a 4-Series processor or VC-4,
+and testing with a physical PJLink display, remain pending.
+
+
+Retained validation record from 92f65a4
+======================================
+
+The complete preceding record follows as published. Its Current labels and
+source-equality statements refer to that historical revision.
+
 Current desktop revalidation
 ============================
 

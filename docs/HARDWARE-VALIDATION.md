@@ -1,6 +1,6 @@
 # RMC3 hardware validation
 
-**All 20 acceptance checks passed on November 7, 2026, America/Los_Angeles.** ChatGPT independently reviewed the Mac CLI run's evidence, correlated the processor captures, simulator events, command records, and package identities, and verified all 692 evidence checksums.
+**All 20 acceptance checks passed on November 7, 2026, America/Los_Angeles.** A subsequent AI-assisted evidence review correlated the Mac CLI run's processor captures, simulator events, command records, and package identities, and verified all 692 evidence checksums.
 
 The tested implementation is the Compact Framework 3.5 port in `lab/Rmc3PjLink`. A physical RMC3 communicated over TCP with the included Python virtual PJLink display on a Mac. The primary 4-Series implementation in `src/` targets `net6.0` and has the desktop/build evidence listed in the main README. [RMC3 port](../lab/Rmc3PjLink/README.txt) · [Primary sample](../README.md)
 
@@ -26,7 +26,7 @@ The build-record revision identifies the retained build workspace. These source 
 | [PjLinkSession.cs](../lab/Rmc3PjLink/PjLinkSession.cs) | `69c62b641288b727ae3bd20fd6914b7513bb7adfaa3927ce10a32c6a75e5a429` |
 | [SampleConfiguration.cs](../lab/Rmc3PjLink/SampleConfiguration.cs) | `47e2cc6be8673aa145797962befeb3c6a347827dcd5c078af69fab7f3a009f44` |
 
-The unsigned production assembly compiled against Compact Framework 3.5 and genuine legacy Crestron references. Crestron's Windows validator, signer, and package creator produced the CPZ. Independent inspection verified its archive contents, dependency identities, and signed-content digests. Windows reported an untrusted root for the vendor's legacy self-signed certificate, and the independent cryptographic checks passed against that certificate's exact identity.
+The unsigned production assembly compiled against Compact Framework 3.5 and genuine legacy Crestron references. Crestron's Windows validator, signer, and package creator produced the CPZ. Package inspection checked its archive contents, dependency identities, and signed-content digests. Windows reported an untrusted root for the vendor's legacy self-signed certificate. Signature and signed-content checks passed against that exact certificate.
 
 ## Acceptance results
 
@@ -58,7 +58,7 @@ The journal records **one upload, one initial load, two program restarts, and th
 ## Review findings and qualifications
 
 - The execution capture contains 127,388 bytes covered by 517 contiguous receive records. All 224 command-completion excerpts across the preflight and execution captures match their raw byte ranges.
-- Sixteen query-result objects pair a prompt-bounded text excerpt with an end offset sampled after later asynchronous feedback arrived. The continuous captures preserve those additional lines. The independent review used exact command-completion bounds and subsequent observations for the affected checks.
+- Sixteen query-result objects pair a prompt-bounded text excerpt with an end offset sampled after later asynchronous feedback arrived. The continuous captures preserve those additional lines. The review used exact command-completion bounds and later observations for the affected checks.
 - The old delayed write in P13 ended in `BrokenPipeError` at 35.010 seconds. The recovered connection opened 2.640 seconds earlier and answered correctly before and after that attempt.
 - Fragmentation coverage measures simulator write boundaries. TCP may combine writes before a processor receive callback.
 - Private backup and credential-byte comparisons are supported by recorded local comparison and SFTP results. The retained local originals support byte-for-byte replay. Authenticated post-restart exchanges corroborate runtime credential use.

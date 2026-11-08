@@ -107,6 +107,8 @@ namespace Crestron.SimplSharp.CrestronSockets
         public static List<TCPClient> Created { get; } = new List<TCPClient>();
         public static Func<bool>? IsStateLockHeld { get; set; }
         public List<string> Sent { get; } = new List<string>();
+        public string Host { get; }
+        public int Port { get; }
         public bool IsDisposed { get; private set; }
         public bool DisposedWithStateLock { get; private set; }
         public bool ThrowOnSend { get; set; }
@@ -115,7 +117,12 @@ namespace Crestron.SimplSharp.CrestronSockets
         public SocketStatus ClientStatus { get; private set; }
         public byte[] IncomingDataBuffer { get; } = new byte[4096];
 
-        public TCPClient(string host, int port, int size) => Created.Add(this);
+        public TCPClient(string host, int port, int size)
+        {
+            Host = host;
+            Port = port;
+            Created.Add(this);
+        }
         public SocketErrorCodes ConnectToServerAsync(Action<TCPClient> callback)
         {
             connected = callback;

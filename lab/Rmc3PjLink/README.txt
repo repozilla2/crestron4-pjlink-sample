@@ -11,8 +11,8 @@ the same source with desktop equivalents for the clock, file I/O and MD5.
 The signed Rmc3PjLink package passed all 20 hardware acceptance checks on an
 RMC3 with PUF 1.8001.0298 and OS 1.8001.6192.21873 on November 7, 2026,
 America/Los_Angeles. Its peer was the included virtual PJLink display running
-on a Mac. ChatGPT's independent review of the Mac CLI run corroborated those
-results and all 692 evidence checksums. See docs/HARDWARE-VALIDATION.md from
+on a Mac. A subsequent AI-assisted evidence review correlated the Mac CLI run's
+results and verified all 692 evidence checksums. See docs/HARDWARE-VALIDATION.md from
 the repository root for production-source hashes, package identity, and observations.
 
 Production substitutions

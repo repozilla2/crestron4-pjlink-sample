@@ -20,7 +20,9 @@ var tests = new (string Name, Action Run)[]
     ("Send failure and invalid ASCII close the connection", TransportFailures),
     ("Timer-driven timeouts close the socket and permit reconnection", TimerTimeouts),
     ("Production construction uses the running monotonic Stopwatch", ProductionClock),
-    ("Runtime password file supplies authentication without credential logs", RuntimePassword)
+    ("Runtime password file supplies authentication without credential logs", RuntimePassword),
+    ("Runtime host file is required, validated, and read on each connect", RuntimeHost),
+    ("Idle peer closure is reported distinctly from a mid-transaction closure", PeerClosure)
 };
 
 int failures = 0;
@@ -60,7 +62,11 @@ static void Reset()
     TCPClient.Created.Clear();
     TCPClient.IsStateLockHeld = null;
     CTimer.Created.Clear();
+    WriteHost("10.20.30.40");
 }
+
+static void WriteHost(string text) => File.WriteAllText(
+    Path.Combine(Crestron.SimplSharp.CrestronIO.Directory.TestApplicationDirectory, "pjlink-host.txt"), text);
 
 static ControlSystem Start()
 {
@@ -267,6 +273,73 @@ static void RuntimePassword()
     {
         File.Delete(path);
     }
+}
+
+static void RuntimeHost()
+{
+    Start();
+    Equal(true, CrestronConsole.Messages.Any(message => message.Contains("Configure pjlink-host.txt", StringComparison.Ordinal)));
+    string path = Path.Combine(Crestron.SimplSharp.CrestronIO.Directory.TestApplicationDirectory, "pjlink-host.txt");
+    File.Delete(path);
+    CrestronConsole.Command!("connect");
+    Equal(0, TCPClient.Created.Count);
+    Equal(true, CrestronConsole.Messages.Last().Contains("pjlink-host.txt", StringComparison.Ordinal));
+
+    foreach (string invalid in new[] { "", "10.0.0", "10.0.0.256", "10.00.0.1", "host.local", "127.0.0.1", "0.0.0.0", "239.1.1.1", "255.255.255.255", " 10.0.0.1", "10.0.0.1\n" + new string('\n', 64) })
+    {
+        WriteHost(invalid);
+        CrestronConsole.Command!("connect");
+        Equal(0, TCPClient.Created.Count);
+    }
+
+    File.Delete(path);
+    System.IO.Directory.CreateDirectory(path);
+    try
+    {
+        CrestronConsole.Command!("connect");
+        Equal(0, TCPClient.Created.Count);
+        Equal(true, CrestronConsole.Messages.Last().Contains("could not be read", StringComparison.Ordinal));
+    }
+    finally
+    {
+        System.IO.Directory.Delete(path);
+    }
+
+    WriteHost("100.64.0.9\r\n");
+    TCPClient first = Connect();
+    Equal(1, TCPClient.Created.Count);
+    Equal("100.64.0.9", first.Host);
+    Equal(4352, first.Port);
+    CrestronConsole.Command!("disconnect");
+    Equal(true, first.IsDisposed);
+    WriteHost("192.168.50.20");
+    TCPClient second = Connect();
+    Equal(2, TCPClient.Created.Count);
+    Equal("192.168.50.20", second.Host);
+    Equal(4352, second.Port);
+}
+
+static void PeerClosure()
+{
+    Start();
+    CrestronConsole.Command!("connect");
+    TCPClient greeting = TCPClient.Created.Last();
+    greeting.CompleteConnection();
+    greeting.Deliver(Array.Empty<byte>());
+    Equal(true, greeting.IsDisposed);
+    Equal(true, CrestronConsole.Messages.Last().Contains("before its PJLink greeting", StringComparison.Ordinal));
+
+    TCPClient idle = Connect();
+    idle.Deliver(Array.Empty<byte>());
+    Equal(true, idle.IsDisposed);
+    Equal(true, CrestronConsole.Messages.Last().Contains("idle connection", StringComparison.Ordinal));
+
+    TCPClient busy = Connect();
+    CrestronConsole.Command!("query");
+    busy.Deliver(Array.Empty<byte>());
+    Equal(true, busy.IsDisposed);
+    Equal(true, CrestronConsole.Messages.Last().Contains("during a transaction", StringComparison.Ordinal));
+    Equal(true, CrestronConsole.Messages.Last().Contains("outcome is unknown", StringComparison.Ordinal));
 }
 
 static void Equal<T>(T expected, T actual)
