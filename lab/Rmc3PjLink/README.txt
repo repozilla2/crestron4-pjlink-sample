@@ -32,7 +32,10 @@ Production substitutions
 Runtime configuration
 
 The program uses TCP port 4352 and a 30-second greeting/response timeout.
-Place both configuration files in the program's application directory.
+Place both configuration files in the program's application directory. On the
+tested RMC3, slot 1's application directory was SFTP path /Program01 (console
+path \SIMPL\app01). Loading, staging and test steps are in
+docs/PROCESSOR-SETUP-AND-TESTING.md from the repository root.
 
 pjlink-host.txt
 
@@ -100,16 +103,18 @@ and controlled fault scenarios. See lab/VirtualPjLink/README.md.
 
 Processor build prerequisites
 
-The dotnet commands above produce desktop test executables. An RMC3 processor
-build uses authorized legacy Crestron SIMPL# Pro development tools and
-Compact Framework 3.5 reference assemblies.
+The dotnet commands above produce desktop test executables only. They do not
+produce Rmc3PjLink.cpz, and the repository does not distribute that package
+because it bundles Crestron SDK files. An RMC3 processor build uses authorized
+legacy Crestron SIMPL# Pro development tools and Compact Framework 3.5
+reference assemblies.
 
 The recorded production build followed these stages.
 
 1. Compile PjLinkSession.cs, SampleConfiguration.cs, and ControlSystem.cs into
-   Rmc3PjLink.dll with the RMC3 compilation symbol, C# 3 language compatibility,
-   library output, optimization, deterministic output, and explicit references
-   selected with the compiler's nostdlib option.
+   Rmc3PjLink.dll using Roslyn csc from .NET SDK 10.0.403 with -noconfig
+   -nostdlib+ -langversion:3 -target:library -optimize+ -debug- -warn:4
+   -warnaserror+ -deterministic+ -define:RMC3.
 2. Resolve mscorlib.dll, System.dll, System.Core.dll, and System.Data.dll from
    the Windows CE Compact Framework 3.5 reference set. Resolve
    SimplSharpHelperInterface.dll, SimplSharpPro.exe,
@@ -118,11 +123,15 @@ The recorded production build followed these stages.
    SimplSharpCryptographyInterface.dll from the genuine legacy Crestron SDK.
 3. Validate the assembly with Crestron's Windows sandbox validator, then use
    the vendor signer and package creator to generate the processor CPZ with
-   its SDK dependencies and program metadata.
+   its SDK dependencies. A private, unpublished wrapper invoked these vendor
+   tools and wrote ProgramInfo.config.
 
 The repository supplies the three production sources and desktop test projects.
 Reproducing the processor package requires the licensed legacy toolchain and
-its configured Windows validation/signing environment. The retained build
+its configured Windows validation/signing environment. Crestron's supported
+route for that toolchain, a Visual Studio 2008 SIMPL# Pro project with the
+RMC3 symbol defined, has not been exercised for this port. Any rebuild is a
+new package with a different hash and needs its own hardware test. The retained build
 record identifies revision 4fdb6275b57179666ad370b20fdebf93a08ea7a7 and an
 unsigned assembly of 22,016 bytes with SHA-256
 9ff3061b7683e988dfbcebb18b063c8a107dda0c44746118ac74ba39a2e1a1d0.

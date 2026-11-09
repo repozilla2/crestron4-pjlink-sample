@@ -6,6 +6,15 @@ A SIMPL# Pro C# sample for PJLink Class 1 display power control. It demonstrates
 
 Developed under my technical direction with AI pair-programming and review tools. My Crestron background informed the requirements, review criteria, hardware test setup, and acceptance decisions; AI tools contributed substantive implementation, tests, and documentation.
 
+## Which project and package for which processor
+
+| Processor | Source | Processor package | How it is produced | Hardware status |
+| --- | --- | --- | --- | --- |
+| RMC3 (3-Series) | `lab/Rmc3PjLink/` | `Rmc3PjLink.cpz` | Licensed legacy 3-Series SIMPL# Pro toolchain (Compact Framework 3.5, vendor validator/signer). **Not built by `dotnet`. Not distributed here.** | 20/20 checks passed against the simulator |
+| 4-Series | `src/CrestronSample/` | `CrestronSample.cpz` (`net6.0`) | `dotnet build CrestronSample.sln` | Not yet run on a processor |
+
+The test projects in `tests/` and `lab/Rmc3PjLink.Tests/` are desktop programs that use SDK test doubles. They produce nothing that can be loaded onto a processor. `CrestronSample.cpz` does not run on an RMC3. Setup, loading, and testing steps for both generations: [Processor setup and testing](docs/PROCESSOR-SETUP-AND-TESTING.md)
+
 ## Validation
 
 | Component or environment | Recorded result |
@@ -44,7 +53,7 @@ The implemented protocol is the power subset of PJLink Class 1 v1.04 with `PJLIN
 
 The sample uses TCP port `4352` and a **30-second timeout** for connection/greeting acquisition and each command response.
 
-## Build and test
+## Build and test (desktop and 4-Series package)
 
 Use the .NET 10 SDK selected by `global.json`, version `10.0.403` or a later stable 10.0 release, with NuGet access. Building the processor project requires authorization under Crestron's SDK terms. SDK assemblies restore from NuGet. [Crestron SDK terms](https://www.crestron.com/Legal/software-license-agreement/Software-Development-Tools-License-Agreement)
 
@@ -56,9 +65,11 @@ dotnet run --project tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj -c
 
 The build writes `src/CrestronSample/bin/Release/net6.0/CrestronSample.cpz`. Each test executable exits `0` on success. The `-m:1` option addresses the recorded Linux restore-graph failure in the default parallel solution build, whose cause remains unresolved. [Validation history](VALIDATION.txt)
 
-The RMC3 port README provides its desktop, simulator, and loopback-TCP commands and the legacy processor-build prerequisites. [RMC3 port instructions](lab/Rmc3PjLink/README.txt)
+These commands do not build the RMC3 port or any 3-Series package. The RMC3 port README provides its desktop, simulator, and loopback-TCP commands and the legacy processor-build prerequisites. [RMC3 port instructions](lab/Rmc3PjLink/README.txt)
 
-## Run on a processor
+## Run on a 4-Series processor (not yet hardware-tested)
+
+These steps have not been exercised on a 4-Series processor or VC-4. [Processor setup and testing](docs/PROCESSOR-SETUP-AND-TESTING.md) covers the hardware-recorded RMC3 procedure.
 
 Use a 4-Series processor with firmware that supports .NET 6 programs. CP4N release notes document that support beginning with `2.8003.00037`. Verify the selected model and installed firmware during commissioning. [CP4N firmware release notes](https://www.crestron.com/release_notes/cp4n_2.8003.00057_release_notes.pdf)
 

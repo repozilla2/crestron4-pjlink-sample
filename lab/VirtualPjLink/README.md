@@ -86,8 +86,13 @@ python3 virtual_pjlink.py \
   --bind MAC_LAN_IP \
   --allow-client RMC3_LAN_IP \
   --ask-password \
+  --warmup-seconds 10 \
+  --cooldown-seconds 10 \
   --log virtual-pjlink-auth.jsonl
 ```
+
+Without the two transition options the simulator uses 3-second transitions,
+which leaves little time to observe Warming and Cooling.
 
 Automation can use `--password-file /absolute/path/to/pjlink-password.txt`.
 Passwords contain 1–32 ASCII letters or digits. A final LF or CRLF in that file
