@@ -20,7 +20,7 @@ The test projects in `tests/` and `lab/Rmc3PjLink.Tests/` are desktop programs t
 | Component or environment | Recorded result |
 | --- | --- |
 | Primary protocol core, `netstandard2.0` | 18 desktop test groups passed |
-| Primary adapter, `net6.0`, SDK 2.22.40 | Release build and CPZ packaging passed, plus 13 desktop adapter groups using SDK doubles |
+| Primary adapter, `net6.0`, SDK 2.22.40 | Release build and CPZ packaging passed, plus 19 desktop adapter groups using SDK doubles |
 | RMC3-compatible port | 20 hardware acceptance checks passed against the virtual display on November 7, 2026 |
 | RMC3 port in the desktop TCP harness | 11 loopback scenarios passed |
 | Python virtual display | 36 simulator tests passed |
@@ -28,6 +28,14 @@ The test projects in `tests/` and `lab/Rmc3PjLink.Tests/` are desktop programs t
 | Physical PJLink display | Pending |
 
 The validation records identify each run's environment, tested sources, and observations. [Build and test record](VALIDATION.txt) · [RMC3 hardware record](docs/HARDWARE-VALIDATION.md)
+
+The November 12 desktop qualification adds six controlled cross-thread schedules
+to **each** adapter suite (19 primary groups, 21 RMC3 groups). Both deadline
+negative controls failed exactly the intended new test; the restored sources
+passed all seven final suites. Production source remains unchanged.
+[Dated results](docs/validation/2026-11-12-concurrency.md) ·
+[Concurrency teach-back and evidence limits](docs/CONCURRENCY-QUALIFICATION.md) ·
+[4-Series acceptance worksheet — not run](docs/4-SERIES-ACCEPTANCE.md)
 
 ## What to read
 

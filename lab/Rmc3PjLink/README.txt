@@ -80,8 +80,11 @@ The core project links the original 18-group test program. The adapter project
 retains the original 10 groups and adds runtime-host selection and validation,
 high-bit ASCII rejection, bounded configuration reads, credential-log protection,
 and invariant console-command casing. Its SDK doubles model adapter control flow.
-The recorded result is 18 core groups, 15 adapter groups, and 5 event groups
-passed. The event groups verify duplicate subscriptions, removal, and
+The November 7 desktop record reports 18 core groups, 15 adapter groups, and
+5 event groups passed. The November 12 concurrency qualification adds six
+shared cross-thread schedules: 18 core, 21 adapter, and 5 event groups passed.
+See docs/validation/2026-11-12-concurrency.md from the repository root.
+The event groups verify duplicate subscriptions, removal, and
 cross-thread subscription changes while callbacks run.
 
 The test harness uses desktop clock, cryptography and I/O implementations.

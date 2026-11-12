@@ -26,7 +26,13 @@ var tests = new (string Name, Action Run)[]
     ("Host configuration rejects malformed and non-private IPv4", HostValidation),
     ("ASCII conversion rejects every high-bit byte", HighBitAscii),
     ("Configuration reads are bounded and errors exclude credentials", ConfigurationFiles),
-    ("Console commands use invariant casing", InvariantCommands)
+    ("Console commands use invariant casing", InvariantCommands),
+    ("Concurrent receive precedes stop with one cleanup", AdapterConcurrencyScenarios.ReceiveBeforeStop),
+    ("Concurrent stop rejects queued receive", AdapterConcurrencyScenarios.StopBeforeReceive),
+    ("Concurrent timeout rejects queued response", AdapterConcurrencyScenarios.TimeoutBeforeResponse),
+    ("Concurrent response completes before timeout", AdapterConcurrencyScenarios.ResponseBeforeTimeout),
+    ("Concurrent disconnect rejects queued send completion", AdapterConcurrencyScenarios.DisconnectBeforeSendCompletion),
+    ("Concurrent failed send completion precedes disconnect", AdapterConcurrencyScenarios.SendCompletionBeforeDisconnect)
 };
 
 int failures = 0;

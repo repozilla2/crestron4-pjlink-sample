@@ -25,6 +25,8 @@ namespace Crestron.SimplSharp
         public static List<string> Messages { get; } = new List<string>();
         public static bool RejectRegistration { get; set; }
         public static int RemoveCalls { get; private set; }
+        // A test can hold a production callback at a known point inside its state lock.
+        public static Action<string>? BeforePrintLine { get; set; }
 
         public static bool AddNewConsoleCommand(Action<string> callback, string name,
             string help, ConsoleAccessLevelEnum access)
@@ -34,7 +36,12 @@ namespace Crestron.SimplSharp
             return true;
         }
 
-        public static void PrintLine(string message, params object[] args) => Messages.Add(string.Format(message, args));
+        public static void PrintLine(string message, params object[] args)
+        {
+            string formatted = string.Format(message, args);
+            BeforePrintLine?.Invoke(formatted);
+            Messages.Add(formatted);
+        }
         public static void ConsoleCommandResponse(string message) => Messages.Add(message);
         public static bool RemoveConsoleCommand(string name)
         {
@@ -48,6 +55,7 @@ namespace Crestron.SimplSharp
             Messages.Clear();
             RejectRegistration = false;
             RemoveCalls = 0;
+            BeforePrintLine = null;
         }
     }
 
@@ -111,6 +119,8 @@ namespace Crestron.SimplSharp.CrestronSockets
         public int Port { get; }
         public bool IsDisposed { get; private set; }
         public bool DisposedWithStateLock { get; private set; }
+        private int disposeCalls;
+        public int DisposeCalls => System.Threading.Volatile.Read(ref disposeCalls);
         public bool ThrowOnSend { get; set; }
         public bool FailSendInline { get; set; }
         public bool EndReceiveInline { get; set; }
@@ -161,6 +171,7 @@ namespace Crestron.SimplSharp.CrestronSockets
         }
         public void Dispose()
         {
+            System.Threading.Interlocked.Increment(ref disposeCalls);
             IsDisposed = true;
             DisposedWithStateLock = IsStateLockHeld?.Invoke() ?? false;
         }
