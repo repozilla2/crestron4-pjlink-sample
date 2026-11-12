@@ -23,7 +23,13 @@ var tests = new (string Name, Action Run)[]
     ("Runtime password file supplies authentication without credential logs", RuntimePassword),
     ("Runtime host file is required, validated, and read on each connect", RuntimeHost),
     ("Idle peer closure is reported distinctly from a mid-transaction closure", PeerClosure),
-    ("Configuration bound is exactly 64 characters and invalid passwords stop startup safely", ConfigurationBounds)
+    ("Configuration bound is exactly 64 characters and invalid passwords stop startup safely", ConfigurationBounds),
+    ("Concurrent receive precedes stop with one cleanup", AdapterConcurrencyScenarios.ReceiveBeforeStop),
+    ("Concurrent stop rejects queued receive", AdapterConcurrencyScenarios.StopBeforeReceive),
+    ("Concurrent timeout rejects queued response", AdapterConcurrencyScenarios.TimeoutBeforeResponse),
+    ("Concurrent response completes before timeout", AdapterConcurrencyScenarios.ResponseBeforeTimeout),
+    ("Concurrent disconnect rejects queued send completion", AdapterConcurrencyScenarios.DisconnectBeforeSendCompletion),
+    ("Concurrent failed send completion precedes disconnect", AdapterConcurrencyScenarios.SendCompletionBeforeDisconnect)
 };
 
 int failures = 0;

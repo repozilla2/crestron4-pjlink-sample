@@ -1,0 +1,179 @@
+{
+  "completed_at_utc": "2026-11-12T18:00:57.409131+00:00",
+  "baseline_commit": "6edf16d55d5470b3dd6a2254ef65ef80d189ac40",
+  "scope": "Desktop qualification only; no processor or physical-display execution",
+  "environment": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "dotnet_sdk": "10.0.403",
+    "dotnet_runtime": "10.0.14",
+    "python": "3.12.14",
+    "crestron_sdk": "2.22.40"
+  },
+  "production_sources_unchanged": true,
+  "production_source_sha256": {
+    "src/CrestronSample/ControlSystem.cs": "563e229757d344b0914e5c2519a9c28b9000b8adb6add8f148e6839b835f0e3a",
+    "src/CrestronSample/SampleConfiguration.cs": "26b1082449fb36c4ed590095db68641689b7b779b1693d66ff3fe3e7db53d310",
+    "src/DisplayControl.Core/PjLinkSession.cs": "37e33e97180e7d3b9378d464797597c3d61ee285dbd2e78d39a8f640c5f97d05",
+    "lab/Rmc3PjLink/PjLinkSession.cs": "69c62b641288b727ae3bd20fd6914b7513bb7adfaa3927ce10a32c6a75e5a429",
+    "lab/Rmc3PjLink/ControlSystem.cs": "c214832b6f266919554a61590e735495050ed93a8e848692e125c5f74ddb45a4",
+    "lab/Rmc3PjLink/SampleConfiguration.cs": "47e2cc6be8673aa145797962befeb3c6a347827dcd5c078af69fab7f3a009f44"
+  },
+  "qualification_input_sha256": {
+    "lab/Rmc3PjLink.Tests/Adapter/Adapter.Tests.csproj": "88fc52f06b3ae9fdc474e090729c52aaf1ee72a3c4970c523971c290f2b8080b",
+    "lab/Rmc3PjLink.Tests/Adapter/Program.cs": "9186b244db39c875a25bbd7185b0cce2bc25a09cc5a62808e71947e4e9ba1d11",
+    "lab/Rmc3PjLink.Tests/Adapter/SdkDoubles.cs": "de635637e2c0a828d5838e209fef93fe4253b4ea025ca571a6d7b4e3a9bb52cb",
+    "tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj": "557fde5b483318f6fb0811d5f342128e01cabc56ec1cd6a8b1a7610615f59d1a",
+    "tests/CrestronAdapter.Tests/Program.cs": "419e051a1c9b8b8c11c6d4366ee6ab34788822f4bac5a9f5fcb1d23040fc0d94",
+    "tests/CrestronAdapter.Tests/SdkDoubles.cs": "de635637e2c0a828d5838e209fef93fe4253b4ea025ca571a6d7b4e3a9bb52cb",
+    "tests/Shared/AdapterConcurrencyScenarios.cs": "09fc89ca2936af4e98f13166858625dbb1343378bd8509445558d248bd5bb4c0"
+  },
+  "negative_controls": [
+    {
+      "name": "primary-deadline-negative-control",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore"
+      ],
+      "exit_code": 1,
+      "output": "PASS Pause closes resources and suppresses commands and callbacks\nPASS Resume requires an explicit new connection\nPASS Stop while paused releases registrations and stays stopped\nPASS Late callbacks cannot replace the current connection\nPASS Inline callbacks defer disposal until the outer lock exits\nPASS Failed registration preserves another console command\nPASS Send failure and invalid ASCII close the connection\nPASS Timer-driven timeouts close the socket and permit reconnection\nPASS Production construction uses the running monotonic Stopwatch\nPASS Runtime password file supplies authentication without credential logs\nPASS Runtime host file is required, validated, and read on each connect\nPASS Idle peer closure is reported distinctly from a mid-transaction closure\nPASS Configuration bound is exactly 64 characters and invalid passwords stop startup safely\nPASS Concurrent receive precedes stop with one cleanup\nPASS Concurrent stop rejects queued receive\nPASS Concurrent timeout rejects queued response\nPASS Concurrent disconnect rejects queued send completion\nPASS Concurrent failed send completion precedes disconnect\n18/19 adapter test groups passed using SDK doubles.\nFAIL Concurrent response completes before timeout - The subsequent timer must see a completed transaction.\n",
+      "expected_failure_detected": true
+    },
+    {
+      "name": "rmc3-deadline-negative-control",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "lab/Rmc3PjLink.Tests/Adapter/Adapter.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore"
+      ],
+      "exit_code": 1,
+      "output": "PASS Pause closes resources and suppresses commands and callbacks\nPASS Resume requires an explicit new connection\nPASS Stop while paused releases registrations and stays stopped\nPASS Late callbacks cannot replace the current connection\nPASS Inline callbacks defer disposal until the outer lock exits\nPASS Failed registration preserves another console command\nPASS Send failure and invalid ASCII close the connection\nPASS Timer-driven timeouts close the socket and permit reconnection\nPASS Production construction uses the running monotonic Stopwatch\nPASS Runtime password file supplies authentication without credential logs\nPASS Runtime host file selects each explicit connection\nPASS Host configuration rejects malformed and non-private IPv4\nPASS ASCII conversion rejects every high-bit byte\nPASS Configuration reads are bounded and errors exclude credentials\nPASS Console commands use invariant casing\nPASS Concurrent receive precedes stop with one cleanup\nPASS Concurrent stop rejects queued receive\nPASS Concurrent timeout rejects queued response\nPASS Concurrent disconnect rejects queued send completion\nPASS Concurrent failed send completion precedes disconnect\n20/21 adapter test groups passed using SDK doubles.\nFAIL Concurrent response completes before timeout - The subsequent timer must see a completed transaction.\n",
+      "expected_failure_detected": true
+    }
+  ],
+  "final_build": {
+    "name": "final-primary-build",
+    "command": [
+      "dotnet",
+      "build",
+      "CrestronSample.sln",
+      "-c",
+      "Release",
+      "-m:1",
+      "--no-restore"
+    ],
+    "exit_code": 0,
+    "output": "  DisplayControl.Core -> <repository>/src/DisplayControl.Core/bin/Release/netstandard2.0/DisplayControl.Core.dll\n  DisplayControl.Tests -> <repository>/tests/DisplayControl.Tests/bin/Release/net10.0/DisplayControl.Tests.dll\n  CrestronSample -> <repository>/src/CrestronSample/bin/Release/net6.0/CrestronSample.dll\n  CrestronAdapter.Tests -> <repository>/tests/CrestronAdapter.Tests/bin/Release/net10.0/CrestronAdapter.Tests.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:10.64\n"
+  },
+  "final_suites": [
+    {
+      "name": "primary-core",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "tests/DisplayControl.Tests/DisplayControl.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-build"
+      ],
+      "exit_code": 0,
+      "output": "PASS Fragmented greeting waits for CR\nPASS Official MD5 fixture and first-command prefix\nPASS Power queries decode all four states\nPASS Set acknowledgments preserve confirmed feedback\nPASS Fragmented responses and CRLF are framed\nPASS Trailing data cannot satisfy a callback-created command\nPASS Idle partial replies cannot complete a future query\nPASS Idle partial acknowledgments cannot complete a future write\nPASS One command can be outstanding\nPASS Device errors complete without invented feedback\nPASS Missing greeting and response time out\nPASS Late replies cannot complete timed-out commands\nPASS Disconnect clears state and partial data\nPASS Authentication failure invalidates session\nPASS Invalid greetings are rejected\nPASS Malformed or unexpected responses are rejected\nPASS Oversized and non-ASCII frames are rejected\nPASS Configuration rejects invalid passwords and timeout\n18/18 test groups passed.\n"
+    },
+    {
+      "name": "primary-adapter",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "tests/CrestronAdapter.Tests/CrestronAdapter.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-build"
+      ],
+      "exit_code": 0,
+      "output": "PASS Pause closes resources and suppresses commands and callbacks\nPASS Resume requires an explicit new connection\nPASS Stop while paused releases registrations and stays stopped\nPASS Late callbacks cannot replace the current connection\nPASS Inline callbacks defer disposal until the outer lock exits\nPASS Failed registration preserves another console command\nPASS Send failure and invalid ASCII close the connection\nPASS Timer-driven timeouts close the socket and permit reconnection\nPASS Production construction uses the running monotonic Stopwatch\nPASS Runtime password file supplies authentication without credential logs\nPASS Runtime host file is required, validated, and read on each connect\nPASS Idle peer closure is reported distinctly from a mid-transaction closure\nPASS Configuration bound is exactly 64 characters and invalid passwords stop startup safely\nPASS Concurrent receive precedes stop with one cleanup\nPASS Concurrent stop rejects queued receive\nPASS Concurrent timeout rejects queued response\nPASS Concurrent response completes before timeout\nPASS Concurrent disconnect rejects queued send completion\nPASS Concurrent failed send completion precedes disconnect\n19/19 adapter test groups passed using SDK doubles.\n"
+    },
+    {
+      "name": "rmc3-core",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "lab/Rmc3PjLink.Tests/Core/Core.Tests.csproj",
+        "-c",
+        "Release"
+      ],
+      "exit_code": 0,
+      "output": "PASS Fragmented greeting waits for CR\nPASS Official MD5 fixture and first-command prefix\nPASS Power queries decode all four states\nPASS Set acknowledgments preserve confirmed feedback\nPASS Fragmented responses and CRLF are framed\nPASS Trailing data cannot satisfy a callback-created command\nPASS Idle partial replies cannot complete a future query\nPASS Idle partial acknowledgments cannot complete a future write\nPASS One command can be outstanding\nPASS Device errors complete without invented feedback\nPASS Missing greeting and response time out\nPASS Late replies cannot complete timed-out commands\nPASS Disconnect clears state and partial data\nPASS Authentication failure invalidates session\nPASS Invalid greetings are rejected\nPASS Malformed or unexpected responses are rejected\nPASS Oversized and non-ASCII frames are rejected\nPASS Configuration rejects invalid passwords and timeout\n18/18 test groups passed.\n"
+    },
+    {
+      "name": "rmc3-adapter",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "lab/Rmc3PjLink.Tests/Adapter/Adapter.Tests.csproj",
+        "-c",
+        "Release"
+      ],
+      "exit_code": 0,
+      "output": "PASS Pause closes resources and suppresses commands and callbacks\nPASS Resume requires an explicit new connection\nPASS Stop while paused releases registrations and stays stopped\nPASS Late callbacks cannot replace the current connection\nPASS Inline callbacks defer disposal until the outer lock exits\nPASS Failed registration preserves another console command\nPASS Send failure and invalid ASCII close the connection\nPASS Timer-driven timeouts close the socket and permit reconnection\nPASS Production construction uses the running monotonic Stopwatch\nPASS Runtime password file supplies authentication without credential logs\nPASS Runtime host file selects each explicit connection\nPASS Host configuration rejects malformed and non-private IPv4\nPASS ASCII conversion rejects every high-bit byte\nPASS Configuration reads are bounded and errors exclude credentials\nPASS Console commands use invariant casing\nPASS Concurrent receive precedes stop with one cleanup\nPASS Concurrent stop rejects queued receive\nPASS Concurrent timeout rejects queued response\nPASS Concurrent response completes before timeout\nPASS Concurrent disconnect rejects queued send completion\nPASS Concurrent failed send completion precedes disconnect\n21/21 adapter test groups passed using SDK doubles.\n"
+    },
+    {
+      "name": "rmc3-events",
+      "command": [
+        "dotnet",
+        "run",
+        "--project",
+        "lab/Rmc3PjLink.Tests/Events/Events.Tests.csproj",
+        "-c",
+        "Release"
+      ],
+      "exit_code": 0,
+      "output": "PASS SendRequested subscription semantics and unlocked callback\nPASS Ready subscription semantics and unlocked callback\nPASS PowerStateChanged subscription semantics and unlocked callback\nPASS CommandCompleted subscription semantics and unlocked callback\nPASS Faulted subscription semantics and unlocked callback\n5/5 event test groups passed.\n"
+    },
+    {
+      "name": "python-simulator",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "lab/VirtualPjLink",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output": "test_cli_port_zero_log_and_clean_shutdown (test_virtual_pjlink.CliTests.test_cli_port_zero_log_and_clean_shutdown) ... ok\ntest_configuration_rejects_invalid_values (test_virtual_pjlink.ConfigurationAndLogTests.test_configuration_rejects_invalid_values) ... ok\ntest_existing_log_is_preserved (test_virtual_pjlink.ConfigurationAndLogTests.test_existing_log_is_preserved) ... ok\ntest_password_and_digest_never_enter_logs (test_virtual_pjlink.ConfigurationAndLogTests.test_password_and_digest_never_enter_logs) ... ok\ntest_password_file_length_and_line_endings (test_virtual_pjlink.ConfigurationAndLogTests.test_password_file_length_and_line_endings) ... ok\ntest_every_fragment_boundary_and_crlf (test_virtual_pjlink.FramingTests.test_every_fragment_boundary_and_crlf) ... ok\ntest_oversize_and_invalid_ascii_are_bounded (test_virtual_pjlink.FramingTests.test_oversize_and_invalid_ascii_are_bounded) ... ok\ntest_all_four_states_and_exact_transition_boundaries (test_virtual_pjlink.PowerModelTests.test_all_four_states_and_exact_transition_boundaries) ... ok\ntest_idempotent_set_and_invalid_parameter (test_virtual_pjlink.PowerModelTests.test_idempotent_set_and_invalid_parameter) ... ok\ntest_initial_cooling_completes_with_clock (test_virtual_pjlink.PowerModelTests.test_initial_cooling_completes_with_clock) ... ok\ntest_sets_during_transition_return_err3 (test_virtual_pjlink.PowerModelTests.test_sets_during_transition_return_err3) ... ok\ntest_auth_rejection_is_one_shot (test_virtual_pjlink.ScenarioTests.test_auth_rejection_is_one_shot) ... ok\ntest_device_error_is_one_shot_without_power_change (test_virtual_pjlink.ScenarioTests.test_device_error_is_one_shot_without_power_change) ... ok\ntest_disconnect_precedes_command_execution (test_virtual_pjlink.ScenarioTests.test_disconnect_precedes_command_execution) ... ok\ntest_fragmented_greeting_and_feedback (test_virtual_pjlink.ScenarioTests.test_fragmented_greeting_and_feedback) ... ok\ntest_greeting_fault_follows_accept_order (test_virtual_pjlink.ScenarioTests.test_greeting_fault_follows_accept_order) ... ok\ntest_late_response_does_not_block_new_connection (test_virtual_pjlink.ScenarioTests.test_late_response_does_not_block_new_connection) ... ok\ntest_late_response_uses_same_connection (test_virtual_pjlink.ScenarioTests.test_late_response_uses_same_connection) ... ok\ntest_no_response_applies_command_and_allows_recovery (test_virtual_pjlink.ScenarioTests.test_no_response_applies_command_and_allows_recovery) ... ok\ntest_non_ascii_response_and_reconnection (test_virtual_pjlink.ScenarioTests.test_non_ascii_response_and_reconnection) ... ok\ntest_silent_greeting_allows_prompt_reconnect (test_virtual_pjlink.ScenarioTests.test_silent_greeting_allows_prompt_reconnect) ... ok\ntest_silent_hold_records_extra_bytes_without_payload (test_virtual_pjlink.ScenarioTests.test_silent_hold_records_extra_bytes_without_payload) ... ok\ntest_case_insensitivity_err1_err2_and_err3 (test_virtual_pjlink.WireTests.test_case_insensitivity_err1_err2_and_err3) ... ok\ntest_client_allowlist_rejects_other_address (test_virtual_pjlink.WireTests.test_client_allowlist_rejects_other_address) ... ok\ntest_connection_limit_is_bounded (test_virtual_pjlink.WireTests.test_connection_limit_is_bounded) ... ok\ntest_crlf_commands_and_responses (test_virtual_pjlink.WireTests.test_crlf_commands_and_responses) ... ok\ntest_fragmented_auth_command_is_buffered_until_cr (test_virtual_pjlink.WireTests.test_fragmented_auth_command_is_buffered_until_cr) ... ok\ntest_idle_timer_closes_connection (test_virtual_pjlink.WireTests.test_idle_timer_closes_connection) ... ok\ntest_invalid_ascii_and_oversized_frames_close (test_virtual_pjlink.WireTests.test_invalid_ascii_and_oversized_frames_close) ... ok\ntest_malformed_commands_are_ignored (test_virtual_pjlink.WireTests.test_malformed_commands_are_ignored) ... ok\ntest_new_connection_requires_new_digest (test_virtual_pjlink.WireTests.test_new_connection_requires_new_digest) ... ok\ntest_noauth_query_on_off_and_feedback (test_virtual_pjlink.WireTests.test_noauth_query_on_off_and_feedback) ... ok\ntest_official_auth_fixture_and_subsequent_plain_commands (test_virtual_pjlink.WireTests.test_official_auth_fixture_and_subsequent_plain_commands) ... ok\ntest_partial_input_does_not_extend_idle_deadline (test_virtual_pjlink.WireTests.test_partial_input_does_not_extend_idle_deadline) ... ok\ntest_two_clients_observe_shared_power (test_virtual_pjlink.WireTests.test_two_clients_observe_shared_power) ... ok\ntest_wrong_password_ignores_commands_and_times_out (test_virtual_pjlink.WireTests.test_wrong_password_ignores_commands_and_times_out) ... ok\n\n----------------------------------------------------------------------\nRan 36 tests in 1.132s\n\nOK\n"
+    },
+    {
+      "name": "loopback-integration",
+      "command": [
+        "python",
+        "lab/PjLinkIntegration.Tests/run_integration.py",
+        "--dotnet",
+        "dotnet",
+        "--results",
+        "<new-results-directory>"
+      ],
+      "exit_code": 0,
+      "output": "PASS normal\nPASS authenticated\nPASS fragmented\nPASS device-error\nPASS no-greeting\nPASS no-response\nPASS late-response\nPASS disconnect\nPASS reject-auth\nPASS wrong-password\nPASS non-ascii\n"
+    }
+  ],
+  "cpz": {
+    "bytes": 6678183,
+    "sha256": "8d341c69ac3d3f49c2a64d8ea932ed9c0ee205752d25bd915e8e3d876d1b171d",
+    "entries": 40,
+    "crc_check": "PASS",
+    "distributed": false
+  }
+}

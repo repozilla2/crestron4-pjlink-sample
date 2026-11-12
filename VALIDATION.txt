@@ -1,4 +1,21 @@
-Current adapter regression-hardening validation
+Current desktop concurrency qualification — November 12, 2026
+===========================================================
+
+All seven final suites passed with unchanged production source. Primary
+adapter coverage is now 19/19 groups; RMC3 adapter coverage is 21/21 groups.
+Each includes the same six controlled cross-thread overlap scenarios.
+Both deadline-retention negative controls failed exactly the intended new
+group. The restored sources then passed the final build and all final suites.
+
+See docs/validation/2026-11-12-concurrency.md and its adjacent JSON record
+for commands, environment, source hashes, outputs, artifact identity, and limits.
+No processor or physical-display tests were performed in this run.
+
+The sections below are retained historical records. Their uses of "Current"
+and "latest" refer to their original run, not this November 12 qualification.
+
+
+Historical adapter regression-hardening validation
 ===============================================
 
 This file is a cumulative validation history. Only the opening section records
